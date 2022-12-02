@@ -91,7 +91,6 @@ namespace MenuClass
 	bool Float(const char* option, float& _float, int min, int max);
 	bool Float(const char* option, float& _float, int min, int max, int step);
 	template <typename VectorType>
-	template <typename VecType>
-	bool List(const char* option, int& out, std::vector<VecType> vec)
+	bool List(const char* option, int& out, std::vector<VectorType> vec)
 	void End();
 }

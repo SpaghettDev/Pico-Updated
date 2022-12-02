@@ -1,5 +1,6 @@
 #pragma once
 #include "../headers/stdafx.h"
+#include "Functions.cpp"
 
 int TestInt = 420;
 float TestFloat = 6.9f;
@@ -7,7 +8,10 @@ bool TestBool = false;
 
 void PicoMenu()
 {
-	switch (MenuClass::Settings::currentMenu) {
+	using namespace Functions::MiscNS;
+
+	switch (MenuClass::Settings::currentMenu)
+	{
 
 	case Main:
 	{
@@ -15,25 +19,7 @@ void PicoMenu()
 
 		if (MenuClass::Option("Spawn Adder"))
 		{
-			Hash VehicleHash = MISC::GET_HASH_KEY("adder");
-			STREAMING::REQUEST_MODEL(VehicleHash);
-			while (!STREAMING::HAS_MODEL_LOADED(VehicleHash)) WAIT(0);
-
-			auto Position = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
-			*(unsigned short*)g_Hooking.m_ModelSpawnBypass = 0x9090;
-			Vehicle Vehicle = VEHICLE::CREATE_VEHICLE(VehicleHash, Position.x, Position.y, Position.z, 0.f, TRUE, FALSE, FALSE);
-			*(unsigned short*)g_Hooking.m_ModelSpawnBypass = 0x0574;
-
-			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(VehicleHash);
-			if (NETWORK::NETWORK_IS_SESSION_STARTED())
-			{
-				DECORATOR::DECOR_SET_INT(Vehicle, "MPBitset", 0);
-				ENTITY::SET_ENTITY_SHOULD_FREEZE_WAITING_ON_COLLISION(Vehicle, TRUE);
-				auto NetworkID = NETWORK::VEH_TO_NET(Vehicle);
-				if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(Vehicle))
-					NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(NetworkID, true);
-				VEHICLE::SET_VEHICLE_IS_STOLEN(Vehicle, FALSE);
-			}
+			Functions::VehicleNS::spawn_vehicle($("adder"));
 			Log::Msg("We safely spawned a vehicle HURRAY!");
 		}
 

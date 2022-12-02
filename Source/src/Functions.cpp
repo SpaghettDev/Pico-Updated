@@ -4,6 +4,12 @@
 
 namespace Functions
 {
-	using namespace VehicleNS;
-	using namespace MiscNS;
+	namespace VehicleNS
+	{
+		using namespace VehicleNS;
+	}
+	namespace MiscNS
+	{
+		using namespace MiscNS;
+	}
 }

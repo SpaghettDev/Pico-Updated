@@ -6,14 +6,14 @@ namespace MiscNS
 	{
 		if (STREAMING::IS_MODEL_VALID(model))
 		{
-			STREAMING::REQUEST_MODEL(model);
-			while (!STREAMING::HAS_MODEL_LOADED(model))
+			for (uint8_t i = 0; !STREAMING::HAS_MODEL_LOADED(hash) && i < 100; i++)
+			{
+				STREAMING::REQUEST_MODEL(hash);
 				WAIT(0);
+			}
 
-			return true;
+			return STREAMING::HAS_MODEL_LOADED(hash);
 		}
-
-		return false;
 	}
 
 	Hash $(const char* str) {

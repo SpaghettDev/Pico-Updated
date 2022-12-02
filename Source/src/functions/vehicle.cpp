@@ -1,14 +1,11 @@
 #include "../../headers/stdafx.h"
+#include "misc.cpp"
 
 namespace VehicleNS
 {
-	Vehicle spawn(Hash hash, Vector3 location, float heading, bool is_networked = true)
+	Vehicle spawn_vehicle(Hash hash, Vector3 location, float heading, bool is_networked = true)
 	{
-		for (uint8_t i = 0; !STREAMING::HAS_MODEL_LOADED(hash) && i < 100; i++)
-		{
-			STREAMING::REQUEST_MODEL(hash);
-			WAIT(0);
-		}
+		RequestModel(hash);
 
 		if (!STREAMING::HAS_MODEL_LOADED(hash))
 			return 0;

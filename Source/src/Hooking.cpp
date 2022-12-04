@@ -173,15 +173,9 @@ void Hooking::FindPatterns()
 	// Hooking::m_ReceivedEvent = "66 41 83 F9 ? 0F 83"_Scan.as<decltype(Hooking::m_ReceivedEvent)>(); Log::Msg("Found: RE"); // TODO: Change to ReceivedEvent and not ScriptedGameEvent
 	Hooking::m_ScriptedGameEvent = "40 53 48 81 EC ? ? ? ? 44 8B 81"_Scan.as<decltype(Hooking::m_ScriptedGameEvent)>(); Log::Msg("Found: SGE");
 
-	Hooking::m_FrameCount = "F3 0F 10 0D ? ? ? ? 44 89 6B 08"_Scan.add(4).rip(4).sub(8).as<decltype(Hooking::m_FrameCount)>(); Log::Msg("Found: FC");
+	Hooking::m_FrameCount = "F3 0F 10 0D ? ? ? ? 44 89 6B 08"_Scan.add(4).rip(4).sub(8).as<decltype(Hooking::m_FrameCount)>(); Log::Msg("Found: FC"); // TODO: needs to be found
 
-	Hooking::m_WorldPointer = "48 8B C3 48 83 C4 20 5B C3 0F B7 05 ? ? ? ?"_Scan.sub(11).add(3).as<decltype(Hooking::m_WorldPointer)>(); Log::Msg("Found: WP");
-	/*
-	may be worldpointer, not sure
-	48 8B C3 48 83 C4 20 5B C3 0F B7 05
-	\x48\x8B\xC3\x48\x83\xC4\x20\x5B\xC3\x0F\xB7\x05
-	xxxxxxxxxxxx
-	*/
+	Hooking::m_WorldPointer = "48 8B 05 ? ? ? ? 48 8B 48 08 48 85 C9 74 52 8B 81"_Scan.add(3).rip().as<decltype(Hooking::m_WorldPointer)>(); Log::Msg("Found: WP");
 
 	Hooking::m_GlobalBase = "48 8D 15 ? ? ? ? 4C 8B C0 E8 ? ? ? ? 48 85 FF 48 89 1D"_Scan.add(3).rip().as<decltype(Hooking::m_GlobalBase)>(); Log::Msg("Found: GB");
 
@@ -201,9 +195,7 @@ static Hooking::NativeHandler _Handler(uint64_t origHash)
 {
 	uint64_t NewHash = CrossMapping::MapNative(origHash);
 	if (NewHash == 0)
-	{
 		return nullptr;
-	}
 
 	Hooking::NativeRegistrationNew * RegistrationTable = m_NativeRegistrationTable[NewHash & 0xFF];
 
@@ -212,9 +204,7 @@ static Hooking::NativeHandler _Handler(uint64_t origHash)
 		for (uint32_t i = 0; i < RegistrationTable->getNumEntries(); i++)
 		{
 			if (NewHash == RegistrationTable->getHash(i))
-			{
 				return RegistrationTable->handlers[i];
-			}
 		}
 	}
 	return nullptr;
@@ -225,9 +215,7 @@ Hooking::NativeHandler Hooking::GetNativeHandler(uint64_t origHash)
 	auto& NativeHandler = m_NativeHandlerCache[origHash];
 
 	if (NativeHandler == nullptr)
-	{
 		NativeHandler = _Handler(origHash);
-	}
 
 	return NativeHandler;
 }
@@ -245,13 +233,9 @@ void __declspec(noreturn) Hooking::Cleanup()
 	{
 		MH_STATUS Status;
 		if ((Status = MH_DisableHook(func)) == MH_OK)
-		{
 			Log::Msg("Successfully disabled hook %p", func);
-		}
 		else
-		{
 			Log::Msg("Failed to disable hook %p (%s)", func, MH_StatusToString(Status));
-		}
 	}
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -260,13 +244,9 @@ void __declspec(noreturn) Hooking::Cleanup()
 	{
 		MH_STATUS Status;
 		if ((Status = MH_RemoveHook(func)) == MH_OK)
-		{
 			Log::Msg("Successfully removed hook %p", func);
-		}
 		else
-		{
 			Log::Msg("Failed to remove hook %p (%s)", func, MH_StatusToString(Status));
-		}
 	}
 
 	fclose(stdout);

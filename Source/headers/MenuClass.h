@@ -77,10 +77,6 @@ namespace MenuClass
 	{
 		void Keys();
 	}
-	namespace Tools 
-	{
-		const char* StringToChar(std::string string);
-	}
 
 	void Title(const char* title);
 	bool Option(const char* option);
@@ -91,6 +87,6 @@ namespace MenuClass
 	bool Float(const char* option, float& _float, int min, int max);
 	bool Float(const char* option, float& _float, int min, int max, int step);
 	template <typename VectorType>
-	bool List(const char* option, int& out, std::vector<VectorType> vec)
+	bool List(const char* option, int& idx, std::vector<VectorType> vec)
 	void End();
 }

@@ -24,10 +24,11 @@
 #include <unordered_map>
 #include <algorithm>
 #include <functional>
-#include <Psapi.h>
+#include <psapi.h>
 #include <MinHook.h>
 #include <timeapi.h>
 #include <time.h>
+#include <format>
 
 // Additional Header Files:
 #include "Log.h"

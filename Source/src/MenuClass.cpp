@@ -168,12 +168,12 @@ bool MenuClass::Int(const char* option, int& _int, int min, int max)
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
 		onThis
-			? Drawing::Text(Tools::StringToChar("<" + std::to_string(_int) + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-			: Drawing::Text(Tools::StringToChar("<" + std::to_string(_int) + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+			? Drawing::Text(std::format("<{}>", _int).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", _int).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
 	else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
 		onThis
-			? Drawing::Text(Tools::StringToChar("<" + std::to_string(_int) + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-			: Drawing::Text(Tools::StringToChar("<" + std::to_string(_int) + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+			? Drawing::Text(std::format("<{}>", _int).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", _int).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
 
 	return onThis && Settings::selectPressed;
 }
@@ -194,15 +194,19 @@ bool MenuClass::Int(const char* option, int& _int, int min, int max, int step)
 	}
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
-		onThis ? Drawing::Text(Tools::StringToChar("<" + std::to_string(_int) + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false) : Drawing::Text(Tools::StringToChar("<" + std::to_string(_int) + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+		onThis
+			? Drawing::Text(std::format("<{}>", _int).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", _int).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
 	else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
-		onThis ? Drawing::Text(Tools::StringToChar("<" + std::to_string(_int) + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false) : Drawing::Text(Tools::StringToChar("<" + std::to_string(_int) + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+		onThis
+			? Drawing::Text(std::format("<{}>", _int).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", _int).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
 
 	return onThis && Settings::selectPressed;
 }
 
 template <typename VecType>
-bool MenuClass::List(const char* option, int& out, std::vector<VecType> vec)
+bool MenuClass::List(const char* option, int& idx, std::vector<VecType> vec)
 {
 	Option(option);
 	bool onThis = Settings::currentOption == Settings::optionCount;
@@ -211,23 +215,23 @@ bool MenuClass::List(const char* option, int& out, std::vector<VecType> vec)
 	{
 		if (Settings::leftPressed)
 		{
-			if (vec[out] != 0) { out--; }
-			else { out = static_cast<int>(vec.size()); }
+			if (idx != 0) { idx--; }
+			else { idx = static_cast<int>(vec.size()); }
 		}
 		if (Settings::rightPressed)
 		{
-			out < static_cast<int>(vec.size()) ? out++ : out = 0;
+			idx < static_cast<int>(vec.size()) ? idx++ : idx = 0;
 		}
 	}
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
 		onThis
-			? Drawing::Text(Tools::StringToChar("<" + std::to_string(vec[out]) + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-			: Drawing::Text(Tools::StringToChar("<" + std::to_string(vec[out]) + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+			? Drawing::Text(std::format("<{}>", vec[idx]).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", vec[idx]).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
 	else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
 		onThis
-			? Drawing::Text(Tools::StringToChar("<" + std::to_string(vec[out]) + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-			: Drawing::Text(Tools::StringToChar("<" + std::to_string(vec[out]) + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+			? Drawing::Text(std::format("<{}>", vec[idx]).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", vec[idx]).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
 
 	return onThis && Settings::selectPressed;
 }
@@ -251,9 +255,13 @@ bool MenuClass::Float(const char* option, float& _float, int min, int max)
 	String = String.substr(0, 3);
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
-		onThis ? Drawing::Text(Tools::StringToChar("<" + String + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false) : Drawing::Text(Tools::StringToChar("<" + String + ">"), Settings::OptionUnselectedText, {Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f}, {0.5f, 0.5f}, true, false);
+		onThis
+			? Drawing::Text(std::format("<{}>", String).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", String).c_str(), Settings::OptionUnselectedText, {Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f}, {0.5f, 0.5f}, true, false);
 	else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
-		onThis ? Drawing::Text(Tools::StringToChar("<" + String + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false) : Drawing::Text(Tools::StringToChar("<" + String + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+		onThis
+			? Drawing::Text(std::format("<{}>", String).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", String).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
 
 	return onThis && Settings::selectPressed;
 }
@@ -276,9 +284,13 @@ bool MenuClass::Float(const char* option, float& _float, int min, int max, int s
 	String = String.substr(0, 3);
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
-		onThis ? Drawing::Text(Tools::StringToChar("<" + String + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false) : Drawing::Text(Tools::StringToChar("<" + String + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+		onThis
+			? Drawing::Text(std::format("<{}>", String).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", String).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
 	else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
-		onThis ? Drawing::Text(Tools::StringToChar("<" + String + ">"), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false) : Drawing::Text(Tools::StringToChar("<" + String + ">"), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+		onThis
+			? Drawing::Text(std::format("<{}>", String).c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::Text(std::format("<{}>", String).c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
 
 	return onThis && Settings::selectPressed;
 }
@@ -290,7 +302,7 @@ void MenuClass::End()
 {
 	if (Settings::optionCount >= Settings::maxVisOptions) {
 		Drawing::Text("UNPAID", Settings::FooterText, {Settings::menuX - (Settings::menuWidth / 2) + 0.005f, (Settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-		Drawing::Text(Tools::StringToChar(std::to_string(Settings::currentOption) + "/" + std::to_string(Settings::optionCount)), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+		Drawing::Text(std::format("{}/{}", Settings::currentOption, Settings::optionCount).c_str(), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 		Drawing::Rect(Settings::FooterBackground, { Settings::menuX, (Settings::maxVisOptions + 1) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 
 		if (Settings::currentOption == 1) {
@@ -305,7 +317,7 @@ void MenuClass::End()
 	}
 	else if (Settings::optionCount > 0) {
 		Drawing::Text("UNPAID", Settings::FooterText, { Settings::menuX - (Settings::menuWidth / 2) + 0.005f, (Settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-		Drawing::Text(Tools::StringToChar(std::to_string(Settings::currentOption) + "/" + std::to_string(Settings::optionCount)), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+		Drawing::Text(std::format("{}/{}", Settings::currentOption, Settings::optionCount).c_str(), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 		Drawing::Rect(Settings::FooterBackground, { Settings::menuX, (Settings::optionCount + 1) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 
 		if (Settings::currentOption == 1 && Settings::optionCount > 1) {
@@ -405,9 +417,4 @@ void MenuClass::MenuLevelHandler::CloseMenu()
 	Settings::menuLevel = Nothing;
 	Settings::currentMenu = Settings::menusArray[Settings::menuLevel];
 	Settings::currentOption = Settings::optionsArray[Settings::menuLevel];
-}
-
-const char* MenuClass::Tools::StringToChar(std::string string)
-{
-	return _strdup(string.c_str());
 }

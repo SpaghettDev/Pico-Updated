@@ -5,7 +5,7 @@ HMODULE _hmoduleDLL;
 HANDLE MainFiber;
 DWORD WakeTime;
 
-std::vector < LPVOID > Hooking::m_Hooks;
+std::vector<LPVOID> Hooking::m_Hooks;
 eGameState* Hooking::m_GameState;
 GetNumberOfEvents* Hooking::m_GetNumberOfEvents;
 GetLabelText* Hooking::m_GetLabelText;
@@ -196,7 +196,7 @@ static Hooking::NativeHandler _Handler(uint64_t origHash)
 	if (NewHash == 0)
 		return nullptr;
 
-	Hooking::NativeRegistrationNew * RegistrationTable = m_NativeRegistrationTable[NewHash & 0xFF];
+	Hooking::NativeRegistrationNew* RegistrationTable = m_NativeRegistrationTable[NewHash & 0xFF];
 
 	for (; RegistrationTable; RegistrationTable = RegistrationTable->getNextRegistration())
 	{

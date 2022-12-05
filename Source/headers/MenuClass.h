@@ -2,8 +2,8 @@
 
 #pragma warning (disable: 4091)
 
-enum SubMenus
-{ //Add Sub Menus in here
+enum SubMenus // Add submenus here
+{
 	Nothing,
 	Main,
 	Test,

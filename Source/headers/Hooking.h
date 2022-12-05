@@ -12,7 +12,7 @@ class Hooking
 	static void FindPatterns();
 
 	public:
-	static std::vector <LPVOID> m_Hooks;
+	static std::vector<LPVOID> m_Hooks;
 	static eGameState* m_GameState;
 	static GetNumberOfEvents* m_GetNumberOfEvents;
 	static GetLabelText* m_GetLabelText;
@@ -32,7 +32,7 @@ class Hooking
 	static bool HookNatives();
 
 	// Native function handler type
-	typedef void(__cdecl * NativeHandler)(scrNativeCallContext * context);
+	typedef void(__cdecl* NativeHandler)(scrNativeCallContext* context);
 	struct NativeRegistrationNew
 	{
 		uint64_t nextRegistration1;
@@ -47,7 +47,7 @@ class Hooking
 			auto v5 = reinterpret_cast<uintptr_t > (&nextRegistration1);
 			auto v12 = 2i64;
 			auto v13 = v5 ^ nextRegistration2;
-			auto v14 = (char *)&result - v5;
+			auto v14 = (char*)&result - v5;
 			do
 			{
 				*(DWORD*)&v14[v5] = (DWORD)(v13 ^ *(DWORD*)v5);
@@ -67,11 +67,11 @@ class Hooking
 			auto naddr = 16 * index + reinterpret_cast<uintptr_t > (&nextRegistration1) + 0x54;
 			auto v8 = 2i64;
 			uint64_t nResult;
-			auto v11 = (char *)&nResult - naddr;
+			auto v11 = (char*)&nResult - naddr;
 			auto v10 = naddr ^ *(DWORD*)(naddr + 8);
 			do
 			{
-				*(DWORD *)&v11[naddr] = (DWORD)(v10 ^ *(DWORD*)(naddr));
+				*(DWORD*)&v11[naddr] = (DWORD)(v10 ^ *(DWORD*)(naddr));
 				naddr += 4i64;
 				--v8;
 			} while (v8);

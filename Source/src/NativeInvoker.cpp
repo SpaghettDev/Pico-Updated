@@ -18,7 +18,7 @@ void nativePush64(UINT64 value)
 	g_context.Push(value);
 }
 
-uint64_t * nativeCall()
+uint64_t* nativeCall()
 {
 	auto fn = Hooking::GetNativeHandler(g_hash);
 

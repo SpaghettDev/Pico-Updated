@@ -5,10 +5,9 @@ static inline void nativePush(T val)
 {
 	UINT64 val64 = 0;
 	if (sizeof(T) > sizeof(UINT64))
-	{
 		throw "error, value size > 64 bit";
-	}
-	*reinterpret_cast<T *>(&val64) = std::forward<T>(val); // &val + sizeof(dw) - sizeof(val)
+
+	*reinterpret_cast<T*>(&val64) = std::forward<T>(val); // &val + sizeof(dw) - sizeof(val)
 	nativePush64(val64);
 }
 

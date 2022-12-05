@@ -20,7 +20,7 @@ public:
 	template<typename T>
 	inline void SetResult(int idx, T value)
 	{
-		intptr_t * returnValues = (intptr_t*)m_pReturn;
+		intptr_t* returnValues = (intptr_t*)m_pReturn;
 		*(T*)&returnValues[idx] = value;
 	}
 
@@ -32,7 +32,7 @@ public:
 	template<typename T>
 	inline T GetResult(int idx)
 	{
-		intptr_t * returnValues = (intptr_t*)m_pReturn;
+		intptr_t* returnValues = (intptr_t*)m_pReturn;
 		return *(T*)&returnValues[idx];
 	}
 
@@ -48,7 +48,7 @@ private:
 		ArgSize = 8,
 	};
 	// Anything temporary that we need
-	uint8_t m_TempStack[MaxNativeParams * ArgSize];
+	uint8_t m_TempStack[MaxNativeParams* ArgSize];
 
 public:
 	inline NativeContext()
@@ -67,9 +67,9 @@ public:
 			throw "Argument has an invalid size";
 		else if (sizeof(T) < ArgSize)
 			// Ensure we don't have any stray data
-			*reinterpret_cast<uintptr_t*>(m_TempStack + ArgSize * m_nArgCount) = 0;
+			*reinterpret_cast<uintptr_t*>(m_TempStack + ArgSize* m_nArgCount) = 0;
 
-		*reinterpret_cast<T*>(m_TempStack + ArgSize * m_nArgCount) = value;
+		*reinterpret_cast<T*>(m_TempStack + ArgSize* m_nArgCount) = value;
 		m_nArgCount++;
 	}
 

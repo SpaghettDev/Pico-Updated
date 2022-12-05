@@ -52,6 +52,7 @@ private:
 	}
 };
 
+// new offsets taken from https://github.com/CrazyZhang666/GTA5OnlineTools
 //offset from WORLD
 #define OFFSET_PLAYER					0x08			//playerbase
 #define OFFSET_PLAYER_PED				0x8
@@ -62,16 +63,22 @@ private:
 #define	OFFSET_ENTITY_POSBASE_COS		0x20
 #define	OFFSET_ENTITY_POSBASE_SIN		0x30
 #define OFFSET_ENTITY_POSBASE_POS		0x50			//vector3
-#define OFFSET_ENTITY_POS				0x90			//vector3
 #define OFFSET_ENTITY_GOD				0x189			//godmode; on = 1, off = 0; byte
 #define OFFSET_ENTITY_HEALTH			0x280			//entity health (except for vehicles); float cur, float max
-#define OFFSET_ENTITY_HEALTH_MAX		0x2A0			//they moved this away from curHealth in 1.36 :(
+#define OFFSET_ENTITY_HEALTH_MAX		0x284			//they moved this away from curHealth in 1.36 :(
 #define OFFSET_ENTITY_ATTACKER			0x2A8			//base to a list of the last 3 entities that attacked the current entity
 #define OFFSET_ENTITY_MODEL_INFO		0x20			//CBaseModelInfo
+#define OFFSET_PED_ENTITYTYPE       0x2B                // int 156:Player 152:Other
+#define OFFSET_ENTITY_POSX 0x90                   // float, vector3
+#define OFFSET_ENTITY_POSY 0x94
+#define OFFSET_ENTITY_POSZ 0x98
+#define OFFSET_ENTITY_PROOF 0x188
+#define OFFSET_ENTITY_HOSTILITY 0x18C
 
 //player (entity) offsets
-#define OFFSET_PLAYER_VEHICLE					0xD30			//ptr to last used vehicle
-#define OFFSET_NET_PLAYER_INFO					0xB0
+#define OFFSET_PLAYER_VEHICLE					0xD10			//ptr to last used vehicle
+#define OFFSET_NET_PLAYER_INFO					0x10A8
+#define OFFSET_PLAYER_INVENTORY 0x10B0
 #define OFFSET_PLAYER_INFO						0x10C8			//playerInfo struct
 #define OFFSET_PLAYER_INFO_NAME					0xA4
 #define OFFSET_PLAYER_INFO_SWIM_SPD				0x170			//swim speed; def 1; float
@@ -81,19 +88,22 @@ private:
 #define OFFSET_PLAYER_INFO_NPC_IGNORE			0x870			//npc ignore; DWORD; everyone = 0x450000;
 #define OFFSET_PLAYER_INFO_WANTED				0x888			//wanted level; DWORD
 #define OFFSET_PLAYER_INFO_STAMINA				0xCF4			//fStamina, fStaminaMax
-#define OFFSET_PLAYER_RAGDOLL					0x10B8			//byte; CPed.noRagdoll: 0x20 = off; 0x00/0x01 = on
-#define OFFSET_PLAYER_SEATBELT					0x140C			//byte; CPed.seatBelt: 0xC8 = off; 0xC9 = on
-#define OFFSET_PLAYER_INVEHICLE					0x1477
-#define OFFSET_PLAYER_ARMOR						0x14E0			//armour
+#define OFFSET_PLAYER_RAGDOLL					0x1098			//byte; CPed.noRagdoll: 0x20 = off; 0x00/0x01 = on
+#define OFFSET_PLAYER_SEATBELT					0x143C			//byte; CPed.seatBelt: 0xC8 (55) = off; 0xC9 (56) = on
+#define OFFSET_PLAYER_INVEHICLE					0xE32      // int 0:false 1:true
+#define OFFSET_PLAYER_ARMOR						0x150C			//armour
 #define OFFSET_PLAYER_WATER_PROOF				0x188			//water proof; DWORD; +0x1000000 = on
 #define OFFSET_PLAYER_VEHICLE_DAMAGE_MP			0xD1C			//super punck/kick;float;
 #define OFFSET_PLAYER_WIDTH                     0x0064          //change player width
 #define OFFSET_PLAYER_HEIGHT                    0x88            //change player height
+#define OFFSET_PLAYER_INVINCIBLE        0x2C                 // byte 0x01:on 0x24:off
 
 //vehicle offsets
-#define OFFSET_VEHICLE_HEALTH						0x908			//vehicle health; 0.f-1000.f
-#define	OFFSET_VEHICLE_HEALTH2						0x844			//vehicle health2; 0.f-1000.f
-#define OFFSET_VEHICLE_HANDLING						0x938
+#define OFFSET_VEHICLE_HEALTH						0x280			//vehicle health; 0.f-1000.f
+#define	OFFSET_VEHICLE_HEALTH2						0x284			//vehicle health2; 0.f-1000.f
+#define OFFSET_VEHICLE_HEALTH_BODY       0x820
+#define OFFSET_VEHICLE_HEALTH_PETROL_TANK 0x824
+#define OFFSET_VEHICLE_HEALTH_ENGINE 0x8E8
 #define OFFSET_VEHICLE_HANDLING_MASS				0xC				//fMass
 #define OFFSET_VEHICLE_HANDLING_BUOYANCY			0x40			//fBuoyancy
 #define OFFSET_VEHICLE_HANDLING_ACCELERATION		0x4C
@@ -139,7 +149,7 @@ private:
 #define OFFSET_VEHICLE_MODEL_INFO_JUMP_ROCK			0x58B			//btJumpOrRock; 0x0 = off; 0x20 = JumpingCar; 0x40 = RocketBoot;  0x42 = Oppressor;
 
 //weapon offsets
-#define OFFSET_WEAPON_MANAGER			0x10D8			//from playerbase
+#define OFFSET_WEAPON_MANAGER			0x10B8			//from playerbase
 #define OFFSET_WEAPON_CURRENT			0x20			//from weapon manager
 #define OFFSET_WEAPON_AMMOINFO			0x60			//from weaponbase
 #define OFFSET_WEAPON_AMMOINFO_MAX		0x28			//ammoinfo

@@ -10,8 +10,10 @@ char g_debugLogFile[MAX_PATH];
 
 static bool useFileOutput = true;
 
-void Log::Init(HMODULE hModule) {
-	if (AllocConsole()) {
+void Log::Init(HMODULE hModule)
+{
+	if (AllocConsole())
+	{
 		freopen_s(reinterpret_cast<FILE**>(stdout), "CONOUT$", "w", stdout);
 		SetConsoleTitleW((LPCWSTR)MenuName);
 		SetConsoleCP(CP_UTF8);
@@ -20,13 +22,14 @@ void Log::Init(HMODULE hModule) {
 
 	memset(g_logFile, 0, sizeof(g_logFile));
 
-	if (GetModuleFileNameA(hModule, g_logFile, MAX_PATH) != 0) {
+	if (GetModuleFileNameA(hModule, g_logFile, MAX_PATH) != 0)
+	{
 		size_t slash = -1;
 
-		for (size_t i = 0; i < strlen(g_logFile); i++) {
-			if (g_logFile[i] == '/' || g_logFile[i] == '\\') {
+		for (size_t i = 0; i < strlen(g_logFile); i++)
+		{
+			if (g_logFile[i] == '/' || g_logFile[i] == '\\')
 				slash = i;
-			}
 		}
 		char chLogBuff[CHARS_FOR_BUFF];
 		char szTimestamp[30];
@@ -36,7 +39,8 @@ void Log::Init(HMODULE hModule) {
 		localtime_s(&current_tm, &current_time);
 		sprintf_s(szTimestamp, "[%02d:%02d:%02d] %%s\n", current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec);
 		sprintf_s(chLogBuff, szTimestamp, std::format("Initialize: {}", MenuName).c_str());
-		if (slash != -1) {
+		if (slash != -1)
+		{
 			g_logFile[slash + 1] = '\0';
 			strcpy_s(g_debugLogFile, g_logFile);
 			strcat_s(g_debugLogFile, std::format("{}.log", MenuName).c_str());
@@ -49,13 +53,11 @@ void Log::Init(HMODULE hModule) {
 			}
 			OutputDebugStringA(std::format("Initialize: {}", MenuName).c_str());
 		}
-		else {
+		else
 			useFileOutput = false;
-		}
 	}
-	else {
+	else
 		useFileOutput = false;
-	}
 
 	Log::Msg(R"(
 
@@ -68,7 +70,8 @@ void Log::Init(HMODULE hModule) {
                                               )");
 }
 
-void Log::Msg(const char* fmt, ...) {
+void Log::Msg(const char* fmt, ...)
+{
 	va_list va_alist;
 	char chLogBuff[CHARS_FOR_BUFF];
 	char chParameters[CHARS_FOR_PARAMS];
@@ -83,7 +86,8 @@ void Log::Msg(const char* fmt, ...) {
 	_vsnprintf_s(chParameters, sizeof(chParameters), fmt, va_alist);
 	va_end(va_alist);
 	sprintf_s(chLogBuff, szTimestamp, chParameters);
-	if (useFileOutput) {
+	if (useFileOutput)
+	{
 		FILE* file;
 		if ((fopen_s(&file, g_debugLogFile, "a")) == 0)
 		{
@@ -106,7 +110,8 @@ void Log::Msg(const char* fmt, ...) {
 }
 
 
-void Log::Error(const char* fmt, ...) {
+void Log::Error(const char* fmt, ...)
+{
 	va_list va_alist;
 	char chLogBuff[CHARS_FOR_BUFF];
 	char chParameters[CHARS_FOR_PARAMS];
@@ -141,7 +146,8 @@ void Log::Error(const char* fmt, ...) {
 	va_end(args);
 }
 
-void Log::Fatal(const char* fmt, ...) {
+void Log::Fatal(const char* fmt, ...)
+{
 	va_list va_alist;
 	char chLogBuff[CHARS_FOR_BUFF];
 	char chParameters[CHARS_FOR_PARAMS];

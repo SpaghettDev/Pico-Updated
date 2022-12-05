@@ -8,6 +8,7 @@ private:
 	uintptr_t m_begin;
 	uintptr_t m_end;
 	DWORD m_size;
+
 public:
 	template<typename TReturn, typename TOffset>
 	TReturn* getRva(TOffset rva)
@@ -348,7 +349,7 @@ namespace SignatureScanner
 
 			while (true)
 			{
-				nibble      current_nibble;
+				nibble current_nibble;
 				std::size_t i = 0;
 
 				while (const char c = *string++)

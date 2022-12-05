@@ -5,7 +5,7 @@ HMODULE _hmoduleDLL;
 HANDLE MainFiber;
 DWORD WakeTime;
 
-std::vector<LPVOID> Hooking::m_Hooks;
+std::vector < LPVOID > Hooking::m_Hooks;
 eGameState* Hooking::m_GameState;
 GetNumberOfEvents* Hooking::m_GetNumberOfEvents;
 GetLabelText* Hooking::m_GetLabelText;
@@ -18,64 +18,61 @@ PVOID Hooking::m_ModelSpawnBypass;
 PVOID Hooking::m_WorldModelSpawnBypass;
 GetPlayerName Hooking::m_GetPlayerName;
 void* Hooking::m_NativeSpoofer;
-static Hooking::NativeRegistrationNew**	m_NativeRegistrationTable;
-static std::unordered_map<uint64_t, Hooking::NativeHandler>	m_NativeHandlerCache;
+static Hooking::NativeRegistrationNew** m_NativeRegistrationTable;
+static std::unordered_map < uint64_t, Hooking::NativeHandler > m_NativeHandlerCache;
 
 /* Start Hooking */
-void Hooking::Start(HMODULE hmoduleDLL)
+void Hooking::Start(HMODULE hmoduleDLL) 
 {
 	_hmoduleDLL = hmoduleDLL;
 	Log::Init(hmoduleDLL);
 	FindPatterns();
-	while (static_cast<int>(*g_Hooking.m_GameState) != 0)
-		Sleep(200);
+	while (static_cast<int > (*g_Hooking.m_GameState) != 0)
+	Sleep(200);
 	CrossMapping::initNativeMap();
 	if (!InitializeHooks())
-		Cleanup();
+	Cleanup();
 }
 
-BOOL Hooking::InitializeHooks()
+BOOL Hooking::InitializeHooks() 
 {
-	BOOL ReturnValue = TRUE;
-
-	if (!HookNatives()) {
+	if (!HookNatives()) 
+	{
 		Log::Error("Hooking failed!");
-		ReturnValue = FALSE;
+		return FALSE;
 	}
 
-	return ReturnValue;
+	return TRUE;
 }
 
 GetNumberOfEvents* m_OriginalGetNumberOfEvents = nullptr;
-std::int32_t GetNumberOfEventsHook(std::int32_t unknown)
+std::int32_t GetNumberOfEventsHook(std::int32_t eventGroup) 
 {
-	if (g_Running)
+	if (g_Running) 
 	{
 		static uint64_t LastFrame = 0;
 		uint64_t CurrentFrame = *Hooking::m_FrameCount;
-		if (LastFrame != CurrentFrame)
+		if (LastFrame != CurrentFrame) 
 		{
 			LastFrame = CurrentFrame;
 			Hooking::onTickInit();
 		}
 	}
-	else if (IsThreadAFiber())
-	{
+	else if (IsThreadAFiber()) 
 		ConvertFiberToThread();
-	}
 
-	return m_OriginalGetNumberOfEvents(unknown);
+	return m_OriginalGetNumberOfEvents(eventGroup);
 }
 
 GetLabelText* m_OriginalGetLabelText = nullptr;
-const char* GetLabelTextHook(void* unk, const char* label)
+const char* GetLabelTextHook(const char* labelName)
 {
 	/*if (!strcmp(label, "HUD_JOINING"))
 		return "Isn't Pico Base the fucking best?";
 	if (!strcmp(label, "HUD_TRANSP"))
 		return "Isn't Pico Base the fucking best?";*/
 
-	return m_OriginalGetLabelText(unk, label);
+	return m_OriginalGetLabelText(labelName);
 }
 
 ScriptedGameEvent* m_OriginalScriptedGameEvent = nullptr;
@@ -150,8 +147,8 @@ void __stdcall ScriptFunction(LPVOID lpParameter)
 void Hooking::onTickInit()
 {
 	if (MainFiber == nullptr)
-		MainFiber = IsThreadAFiber() ? GetCurrentFiber() : ConvertThreadToFiber(nullptr);
-	
+		MainFiber = IsThreadAFiber() ? GetCurrentFiber(): ConvertThreadToFiber(nullptr);
+
 	if (timeGetTime() < WakeTime)
 		return;
 
@@ -173,6 +170,7 @@ void Hooking::FindPatterns()
 	// Hooking::m_ReceivedEvent = "66 41 83 F9 ? 0F 83"_Scan.as<decltype(Hooking::m_ReceivedEvent)>(); Log::Msg("Found: RE"); // TODO: Change to ReceivedEvent and not ScriptedGameEvent
 	Hooking::m_ScriptedGameEvent = "40 53 48 81 EC ? ? ? ? 44 8B 81"_Scan.as<decltype(Hooking::m_ScriptedGameEvent)>(); Log::Msg("Found: SGE");
 
+	// 0x0000000050597EE2
 	Hooking::m_FrameCount = "F3 0F 10 0D ? ? ? ? 44 89 6B 08"_Scan.add(4).rip(4).sub(8).as<decltype(Hooking::m_FrameCount)>(); Log::Msg("Found: FC"); // TODO: needs to be found
 
 	Hooking::m_WorldPointer = "48 8B 05 ? ? ? ? 48 8B 48 08 48 85 C9 74 52 8B 81"_Scan.add(3).rip().as<decltype(Hooking::m_WorldPointer)>(); Log::Msg("Found: WP");
@@ -182,6 +180,7 @@ void Hooking::FindPatterns()
 	Hooking::m_ModelSpawnBypass = "48 8B C8 FF 52 30 84 C0 74 05 48"_Scan.add(8).as<decltype(Hooking::m_ModelSpawnBypass)>(); Log::Msg("Found: MSB");
 	Hooking::m_WorldModelSpawnBypass = "48 8B C8 FF 52 30 84 C0 74 05 48"_Scan.as<decltype(Hooking::m_WorldModelSpawnBypass)>(); Log::Msg("Found: WMSB");
 
+	// 0x6D0DE6A7B5DA71F8
 	Hooking::m_GetPlayerName = "40 53 48 83 EC 20 80 3D ? ? ? ? ? 8B D9 74 22"_Scan.as<decltype(Hooking::m_GetPlayerName)>(); Log::Msg("Found: GPN");
 
 	Hooking::m_NativeSpoofer = "FF E3"_Scan.add(0).as<decltype(Hooking::m_NativeSpoofer)>(); Log::Msg("Found: NS");
@@ -229,7 +228,7 @@ void WAIT(DWORD ms)
 void __declspec(noreturn) Hooking::Cleanup()
 {
 	Log::Msg("Cleaning up hooks");
-	for (auto func : m_Hooks)
+	for (auto func: m_Hooks)
 	{
 		MH_STATUS Status;
 		if ((Status = MH_DisableHook(func)) == MH_OK)
@@ -240,7 +239,7 @@ void __declspec(noreturn) Hooking::Cleanup()
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-	for (auto func : m_Hooks)
+	for (auto func: m_Hooks)
 	{
 		MH_STATUS Status;
 		if ((Status = MH_RemoveHook(func)) == MH_OK)
@@ -251,15 +250,15 @@ void __declspec(noreturn) Hooking::Cleanup()
 
 	fclose(stdout);
 	FreeConsole();
-	FreeLibraryAndExitThread(static_cast<HMODULE>(_hmoduleDLL), 0);
+	FreeLibraryAndExitThread(static_cast<HMODULE > (_hmoduleDLL), 0);
 }
 
-MinHookKeepalive::MinHookKeepalive()
+MinHookKeepalive::MinHookKeepalive() 
 {
 	MH_Initialize();
 }
 
-MinHookKeepalive::~MinHookKeepalive()
+MinHookKeepalive::~MinHookKeepalive() 
 {
 	MH_Uninitialize();
 }

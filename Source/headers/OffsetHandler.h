@@ -5,32 +5,29 @@ class OffsetHandler
 {
 public:
 	template <typename T>
-	T GetValue(std::vector<DWORD> Offsets) {
-
+	T GetValue(std::vector<DWORD> Offsets)
+	{
 		uintptr_t Adress = GetMultilayerPointer((uintptr_t)g_Hooking.m_WorldPointer, Offsets);
-		if (Adress == NULL) {
-			return NULL;
-		}
-
-		return *((T*)Adress);
+		return Adress ? *((T*)Adress) : NULL;
 	}
 
 	template <typename T>
-	void SetValue(std::vector<DWORD> Offsets, T Value) {
+	void SetValue(std::vector<DWORD> Offsets, T Value)
+	{
 		uintptr_t Adress = GetMultilayerPointer((uintptr_t)g_Hooking.m_WorldPointer, Offsets);
-		if (Adress == NULL) {
+		if (Adress == NULL)
 			return;
-		}
 
 		*reinterpret_cast<T*>(Adress) = Value;
 	}
-private:
-	uintptr_t GetMultilayerPointer(uintptr_t BaseAdress, std::vector<DWORD> Offsets) {
-		uintptr_t Pointer = *(uintptr_t*)(BaseAdress);
-		if (!Pointer) {
 
+private:
+	uintptr_t GetMultilayerPointer(uintptr_t BaseAdress, std::vector<DWORD> Offsets)
+	{
+		uintptr_t Pointer = *(uintptr_t*)(BaseAdress);
+		if (!Pointer)
 			return NULL;
-		}
+
 		auto level = Offsets.size();
 
 		for (auto i = 0; i < level; i++)

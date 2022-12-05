@@ -6201,22 +6201,24 @@ uint64_t __HASHMAPDATA[]
 	0xC9853A2BE3DED1A6, 0x9B1F0A416059FB72,
 };
 
-void CrossMapping::initNativeMap() {
+void CrossMapping::initNativeMap()
+{
 	static int init = 0;
-	struct twoQwords {
+	struct twoQwords
+	{
 		uint64_t first;
 		uint64_t second;
 	} *p2q;
 
-	if (init) {
+	if (init)
 		return;
-	}
 
 	p2q = reinterpret_cast<twoQwords*>(__HASHMAPDATA);
 	//DEBUG_OUT("p2q: %p", p2q);
 	//DEBUG_OUT("p2q->first: %llx", p2q->first);
 	//DEBUG_OUT("p2q->second: %llx", p2q->second);
-	while (p2q->first) {
+	while (p2q->first)
+	{
 		//DEBUG_OUT("initNHM: %llx, %llx", p2q->first, p2q->second);
 		nativeHashMap.emplace(p2q->first, p2q->second);
 		//DEBUG_OUT("nativeHashMap now has %lli members", nativeHashMap.size());
@@ -6243,7 +6245,6 @@ bool CrossMapping::searchMap(nMap map, uint64_t inNative, uint64_t* outNative)
 	}
 
 	return found;
-
 }
 
 uint64_t CrossMapping::MapNative(uint64_t inNative)
@@ -6262,10 +6263,10 @@ uint64_t CrossMapping::MapNative(uint64_t inNative)
 
 	// Fail safe to prevent LOG_ERROR spam due to ontick run failed natives
 	found = std::find(nativeFailedVec.begin(), nativeFailedVec.end(), inNative) != nativeFailedVec.end();
-	if (found) {
+	if (found)
 		return NULL;
-	}
-	else nativeFailedVec.push_back(inNative);
+	else
+		nativeFailedVec.push_back(inNative);
 	Log::Error("Failed to find new hash for 0x%p", inNative);
 	return NULL;
 }
@@ -6273,25 +6274,18 @@ uint64_t CrossMapping::MapNative(uint64_t inNative)
 void CrossMapping::dumpNativeMappingCache()
 {
 	FILE* file;
-	int file_exists;
+	bool file_exists;
 	char filename[0x400];
 	snprintf(filename, sizeof(filename), "NativeCache.log");
 	/*first check if the file exists...*/
 	fopen_s(&file, filename, "r");
-	if (file == NULL) file_exists = 0;
-	else { file_exists = 1; fclose(file); }
+	if (!file) file_exists = false;
+	else { file_exists = true; fclose(file); }
 
 	/*...then open it in the appropriate way*/
-	if (file_exists == 1)
-	{
-		fopen_s(&file, filename, "r+b");
-	}
-	else
-	{
-		fopen_s(&file, filename, "w+b");
-	}
+	fopen_s(&file, filename, file_exists ? "r+b" : "w+b")
 
-	if (file != NULL)
+	if (file)
 	{
 		char buffer[50];
 		for (nMap::const_iterator it = nativeCache.begin(); it != nativeCache.end(); ++it)

@@ -4,7 +4,7 @@
 typedef std::unordered_map<uint64_t, uint64_t> nMap;
 static std::vector<uint64_t> nativeFailedVec;
 
-struct CrossMappingEntry
+struct CrossMappingEntry // TODO: why tf does this exist when std::pair exists?!?
 {
 	uint64_t first;
 	uint64_t second;

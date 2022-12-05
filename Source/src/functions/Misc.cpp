@@ -16,7 +16,8 @@ namespace MiscNS
 		}
 	}
 
-	Hash $(const char* str) {
+	Hash $(const char* str)
+	{
 		return MISC::GET_HASH_KEY(str);
 	}
 }

@@ -6,7 +6,7 @@ class ScriptGlobal
 public:
 	constexpr explicit ScriptGlobal(std::size_t index) :
 		m_Index(index)
-	{}
+	{ }
 
 	constexpr ScriptGlobal Add(std::size_t index)
 	{

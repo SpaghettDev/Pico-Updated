@@ -2,7 +2,8 @@
 
 #pragma warning (disable: 4091)
 
-enum SubMenus { //Add Sub Menus in here
+enum SubMenus
+{ //Add Sub Menus in here
 	Nothing,
 	Main,
 	Test,
@@ -27,6 +28,7 @@ namespace MenuClass
 		void Rect(RGBA rgba, VECTOR2 position, VECTOR2_2 size);
 		void Sprite(std::string Streamedtexture, std::string textureName, float x, float y, float width, float height, float rotation, int r, int g, int b, int a);
 	}
+
 	namespace Settings 
 	{
 		extern bool selectPressed;
@@ -67,12 +69,14 @@ namespace MenuClass
 		extern int rightKey;
 		extern int selectKey;
 	}
+
 	namespace MenuLevelHandler 
 	{
 		void MoveMenu(SubMenus menu);
 		void BackMenu();
 		void CloseMenu();
 	}
+
 	namespace Checks 
 	{
 		void Keys();

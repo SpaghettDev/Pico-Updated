@@ -1,18 +1,18 @@
 #pragma once
 
-using GetNumberOfEvents = std::int32_t(std::int32_t unknown);
-using GetLabelText = const char* (void* unk, const char* label);
+using GetNumberOfEvents = std::int32_t(std::int32_t eventGroup);
+using GetLabelText = const char* (const char* label);
 using ScriptedGameEvent = bool(__int64 NetEventStruct, __int64 CNetGamePlayer);
-using GetPlayerName = const char* (_fastcall*)(int32_t index);
+using GetPlayerName = const char* (_fastcall*)(Player player);
 
 class Hooking
 {
-private:
+	private:
 	static BOOL InitializeHooks();
 	static void FindPatterns();
 
-public:
-	static std::vector<LPVOID> m_Hooks;
+	public:
+	static std::vector <LPVOID> m_Hooks;
 	static eGameState* m_GameState;
 	static GetNumberOfEvents* m_GetNumberOfEvents;
 	static GetLabelText* m_GetLabelText;
@@ -42,10 +42,9 @@ public:
 		uint32_t numEntries2;
 		uint64_t hashes;
 
-		inline NativeRegistrationNew* getNextRegistration()
-		{
+		inline NativeRegistrationNew* getNextRegistration() {
 			uintptr_t result;
-			auto v5 = reinterpret_cast<uintptr_t>(&nextRegistration1);
+			auto v5 = reinterpret_cast<uintptr_t > (&nextRegistration1);
 			auto v12 = 2i64;
 			auto v13 = v5 ^ nextRegistration2;
 			auto v14 = (char *)&result - v5;
@@ -59,19 +58,17 @@ public:
 			return reinterpret_cast<NativeRegistrationNew*>(result);
 		}
 
-		inline uint32_t getNumEntries()
-		{
+		inline uint32_t getNumEntries() {
 			return (uint32_t)(((uintptr_t)&numEntries1) ^ numEntries1 ^ numEntries2);
 		}
 
-		inline uint64_t getHash(uint32_t index)
-		{
+		inline uint64_t getHash(uint32_t index) {
 
-			auto naddr = 16 * index + reinterpret_cast<uintptr_t>(&nextRegistration1) + 0x54;
+			auto naddr = 16 * index + reinterpret_cast<uintptr_t > (&nextRegistration1) + 0x54;
 			auto v8 = 2i64;
 			uint64_t nResult;
 			auto v11 = (char *)&nResult - naddr;
-			auto v10 = naddr ^  *(DWORD*)(naddr + 8);
+			auto v10 = naddr ^ *(DWORD*)(naddr + 8);
 			do
 			{
 				*(DWORD *)&v11[naddr] = (DWORD)(v10 ^ *(DWORD*)(naddr));

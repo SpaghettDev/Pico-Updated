@@ -93,14 +93,20 @@ bool MenuClass::Option(const char* option)
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
 	{
-		onThis ? Drawing::Text(option, Settings::OptionSelectedText, { Settings::menuX - 0.1f, (Settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false) : Drawing::Text(option, Settings::OptionUnselectedText, { Settings::menuX - 0.1f, (Settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+		onThis
+			? Drawing::Text(option, Settings::OptionSelectedText, { Settings::menuX - 0.1f, (Settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false)
+			: Drawing::Text(option, Settings::OptionUnselectedText, { Settings::menuX - 0.1f, (Settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+
 		Drawing::Rect(Settings::OptionUnselectedBackground, { Settings::menuX, (Settings::optionCount) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 		if (onThis)
 			Drawing::Rect(Settings::OptionSelectedBackground, { Settings::menuX, (Settings::optionCount) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 	}
 	else if (Settings::optionCount > (Settings::currentOption - Settings::maxVisOptions) && Settings::optionCount <= Settings::currentOption)
 	{
-		onThis ? Drawing::Text(option, Settings::OptionSelectedText, { Settings::menuX - 0.1f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false) : Drawing::Text(option, Settings::OptionUnselectedText, { Settings::menuX - 0.1f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+		onThis
+			? Drawing::Text(option, Settings::OptionSelectedText, { Settings::menuX - 0.1f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false)
+			: Drawing::Text(option, Settings::OptionUnselectedText, { Settings::menuX - 0.1f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+
 		Drawing::Rect(Settings::OptionUnselectedBackground, { Settings::menuX,  (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 		if (onThis)
 			Drawing::Rect(Settings::OptionSelectedBackground, { Settings::menuX,  (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
@@ -118,10 +124,12 @@ bool MenuClass::MenuOption(const char* option, SubMenus newSub)
 	else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
 		Drawing::Rect(Settings::SubmenuRect, { Settings::menuX + (Settings::menuWidth / 2) - 0.002f,  (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.1415f }, { 0.004f, 0.035f });
 
-	if (Settings::optionCount == Settings::currentOption && Settings::selectPressed) {
+	if (Settings::optionCount == Settings::currentOption && Settings::selectPressed)
+	{
 		MenuLevelHandler::MoveMenu(newSub);
 		return true;
 	}
+
 	return false;
 }
 
@@ -148,6 +156,7 @@ bool MenuClass::Bool(const char* option, bool& b00l)
 		b00l ^= 1;
 		return true;
 	}
+
 	return false;
 }
 
@@ -158,12 +167,11 @@ bool MenuClass::Int(const char* option, int& _int, int min, int max)
 
 	if (Settings::optionCount == Settings::currentOption) {
 		if (Settings::leftPressed) {
-			if (_int != min) { _int--; }
-			else { _int = max; }
+			if (_int != min) _int--;
+			else _int = max;
 		}
-		if (Settings::rightPressed) {
+		if (Settings::rightPressed)
 			_int < max ? _int++ : _int = min;
-		}
 	}
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
@@ -185,12 +193,11 @@ bool MenuClass::Int(const char* option, int& _int, int min, int max, int step)
 
 	if (Settings::optionCount == Settings::currentOption) {
 		if (Settings::leftPressed) {
-			if (_int != min) { _int-=step; }
-			else { _int = max; }
+			if (_int != min) _int-=step;
+			else _int = max;
 		}
-		if (Settings::rightPressed) {
+		if (Settings::rightPressed)
 			_int < max ? _int+=step : _int = min;
-		}
 	}
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
@@ -215,13 +222,11 @@ bool MenuClass::List(const char* option, int& idx, std::vector<VecType> vec)
 	{
 		if (Settings::leftPressed)
 		{
-			if (idx != 0) { idx--; }
-			else { idx = static_cast<int>(vec.size()); }
+			if (idx != 0) idx--;
+			else idx = static_cast<int>(vec.size());
 		}
 		if (Settings::rightPressed)
-		{
 			idx < static_cast<int>(vec.size()) ? idx++ : idx = 0;
-		}
 	}
 
 	if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
@@ -243,12 +248,11 @@ bool MenuClass::Float(const char* option, float& _float, int min, int max)
 	bool onThis = Settings::currentOption == Settings::optionCount ? true : false;
 
 	if (Settings::optionCount == Settings::currentOption) {
-		if (Settings::leftPressed) {
+		if (Settings::leftPressed)
 			_float <= min ? _float = max : _float -= 0.1f;
-		}
-		if (Settings::rightPressed) {
+		if (Settings::rightPressed)
 			_float >= max ? _float = min : _float += 0.1f;
-		}
+
 		_float < min ? _float = max : _float > max ? _float = min : NULL;
 	}
 	std::string String = std::to_string(_float);
@@ -272,12 +276,11 @@ bool MenuClass::Float(const char* option, float& _float, int min, int max, int s
 	bool onThis = Settings::currentOption == Settings::optionCount ? true : false;
 
 	if (Settings::optionCount == Settings::currentOption) {
-		if (Settings::leftPressed) {
+		if (Settings::leftPressed)
 			_float <= min ? _float = max : _float -= step;
-		}
-		if (Settings::rightPressed) {
+		if (Settings::rightPressed)
 			_float >= max ? _float = min : _float += step;
-		}
+
 		_float < min ? _float = max : _float > max ? _float = min : NULL;
 	}
 	std::string String = std::to_string(_float);
@@ -300,35 +303,31 @@ bool MenuClass::Float(const char* option, float& _float, int min, int max, int s
 
 void MenuClass::End()
 {
-	if (Settings::optionCount >= Settings::maxVisOptions) {
+	if (Settings::optionCount >= Settings::maxVisOptions)
+	{
 		Drawing::Text("UNPAID", Settings::FooterText, {Settings::menuX - (Settings::menuWidth / 2) + 0.005f, (Settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 		Drawing::Text(std::format("{}/{}", Settings::currentOption, Settings::optionCount).c_str(), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 		Drawing::Rect(Settings::FooterBackground, { Settings::menuX, (Settings::maxVisOptions + 1) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 
-		if (Settings::currentOption == 1) {
+		if (Settings::currentOption == 1)
 			Drawing::Sprite("commonmenu", "arrowright", Settings::menuX, ((Settings::maxVisOptions + 1) * 0.035f + 0.142f), 0.010f, 0.0175f, 90, Settings::FooterSprite.r, Settings::FooterSprite.g, Settings::FooterSprite.b, Settings::FooterSprite.a);
-		}
-		else if (Settings::currentOption == Settings::optionCount) {
+		else if (Settings::currentOption == Settings::optionCount)
 			Drawing::Sprite("commonmenu", "arrowright", Settings::menuX, ((Settings::maxVisOptions + 1) * 0.035f + 0.142f), 0.010f, 0.0175f, 270, Settings::FooterSprite.r, Settings::FooterSprite.g, Settings::FooterSprite.b, Settings::FooterSprite.a);
-		}
-		else {
+		else
 			Drawing::Sprite("commonmenu", "shop_arrows_upanddown", Settings::menuX, ((Settings::maxVisOptions + 1) * 0.035f + 0.140f), 0.020f, 0.035f, 180, Settings::FooterSprite.r, Settings::FooterSprite.g, Settings::FooterSprite.b, Settings::FooterSprite.a);
-		}
 	}
-	else if (Settings::optionCount > 0) {
+	else if (Settings::optionCount > 0)
+	{
 		Drawing::Text("UNPAID", Settings::FooterText, { Settings::menuX - (Settings::menuWidth / 2) + 0.005f, (Settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 		Drawing::Text(std::format("{}/{}", Settings::currentOption, Settings::optionCount).c_str(), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 		Drawing::Rect(Settings::FooterBackground, { Settings::menuX, (Settings::optionCount + 1) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 
-		if (Settings::currentOption == 1 && Settings::optionCount > 1) {
+		if (Settings::currentOption == 1 && Settings::optionCount > 1)
 			Drawing::Sprite("commonmenu", "arrowright", Settings::menuX, ((Settings::optionCount + 1) * 0.035f + 0.142f), 0.010f, 0.0175f, 90, Settings::FooterSprite.r, Settings::FooterSprite.g, Settings::FooterSprite.b, Settings::FooterSprite.a);
-		}
-		else if (Settings::currentOption == Settings::optionCount && Settings::optionCount > 1) {
+		else if (Settings::currentOption == Settings::optionCount && Settings::optionCount > 1)
 			Drawing::Sprite("commonmenu", "arrowright", Settings::menuX, ((Settings::optionCount + 1) * 0.035f + 0.142f), 0.010f, 0.0175f, 270, Settings::FooterSprite.r, Settings::FooterSprite.g, Settings::FooterSprite.b, Settings::FooterSprite.a);
-		}
-		else {
+		else
 			Drawing::Sprite("commonmenu", "shop_arrows_upanddown", Settings::menuX, ((Settings::optionCount + 1) * 0.035f + 0.140f), 0.020f, 0.035f, 180, Settings::FooterSprite.r, Settings::FooterSprite.g, Settings::FooterSprite.b, Settings::FooterSprite.a);
-		}
 	}
 }
 
@@ -348,7 +347,8 @@ void MenuClass::Checks::Keys()
 	Settings::selectPressed = false;
 	Settings::leftPressed = false;
 	Settings::rightPressed = false;
-	if (GetTickCount() - Settings::keyPressPreviousTick > Settings::keyPressDelay) {
+	if (GetTickCount() - Settings::keyPressPreviousTick > Settings::keyPressDelay)
+	{
 		if (GetAsyncKeyState(Settings::openKey))
 		{
 			Settings::menuLevel == 0

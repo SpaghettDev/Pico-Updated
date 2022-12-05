@@ -55,4 +55,4 @@
 #include <stdio.h>
 
 extern std::atomic_bool g_Running;
-extern constexpr const char* MenuName = "Pico Updated"; // Make sure the string can be used to create a file!
+extern constexpr const char* MenuName = "Pico-Updated"; // Make sure the string can be used to create a file!

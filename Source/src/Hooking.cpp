@@ -27,11 +27,11 @@ void Hooking::Start(HMODULE hmoduleDLL)
 	_hmoduleDLL = hmoduleDLL;
 	Log::Init(hmoduleDLL);
 	FindPatterns();
-	while (static_cast<int > (*g_Hooking.m_GameState) != 0)
-	Sleep(200);
+	while (static_cast<int>(*g_Hooking.m_GameState) != 0)
+		Sleep(200);
 	CrossMapping::initNativeMap();
 	if (!InitializeHooks())
-	Cleanup();
+		Cleanup();
 }
 
 BOOL Hooking::InitializeHooks() 

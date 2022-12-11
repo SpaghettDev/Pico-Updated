@@ -30,20 +30,13 @@ private:
 
 		auto level = Offsets.size();
 
-		for (auto i = 0; i < level; i++)
+		for (auto i = 0; i < level - 1; i++)
 		{
-			if (i == level - 1)
-			{
-				Pointer += Offsets[i];
-				if (!Pointer) return NULL;
-				return Pointer;
-			}
-			else
-			{
-				Pointer = *(uint64_t*)(Pointer + Offsets[i]);
-				if (!Pointer) return NULL;
-			}
+			Pointer = *(uint64_t*)(Pointer + Offsets[i]);
+			if (!Pointer) return NULL;
 		}
+
+		Pointer += Offsets[level - 1];
 
 		return Pointer;
 	}

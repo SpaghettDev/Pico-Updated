@@ -1,5 +1,5 @@
 # Pico-Updated
-[Pico][pico] updated to latest version of GTA (1.63 Build 2699) and with some nice features.
+[Pico][pico] updated to latest version of GTA (1.64 Build 2802) and with some nice features.
 
 Original Uknowncheats post is [here][pico].
 

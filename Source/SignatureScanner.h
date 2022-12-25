@@ -1,4 +1,7 @@
 #pragma once
+#include "NativeInvoker.h"
+#include "enums.h"
+#include "Hooking.h"
 #include "stdafx.h"
 #include <valarray>
 

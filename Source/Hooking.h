@@ -44,7 +44,7 @@ public:
 	static bool HookNatives();
 
 	// Native function handler type
-	typedef void(__cdecl * NativeHandler)(scrNativeCallContext * context);
+	typedef void(__cdecl * NativeHandler)(scrNativeCallContext* context);
 	struct NativeRegistrationNew
 	{
 		uint64_t nextRegistration1;

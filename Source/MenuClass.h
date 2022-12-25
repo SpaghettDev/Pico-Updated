@@ -2,7 +2,7 @@
 
 #pragma warning (disable: 4091)
 
-enum SubMenus // Add submenus here
+enum SubMenus //Add Sub Menus in here
 {
 	Nothing,
 	Main,
@@ -28,7 +28,6 @@ namespace MenuClass
 		void Rect(RGBA rgba, VECTOR2 position, VECTOR2_2 size);
 		void Sprite(std::string Streamedtexture, std::string textureName, float x, float y, float width, float height, float rotation, int r, int g, int b, int a);
 	}
-
 	namespace Settings 
 	{
 		extern bool selectPressed;
@@ -40,7 +39,7 @@ namespace MenuClass
 		extern int optionCount;
 
 		extern SubMenus currentMenu;
-		extern int menuLevel;
+		extern SubMenus menuLevel;
 		extern int optionsArray[1000];
 		extern SubMenus menusArray[1000];
 
@@ -69,14 +68,12 @@ namespace MenuClass
 		extern int rightKey;
 		extern int selectKey;
 	}
-
 	namespace MenuLevelHandler 
 	{
 		void MoveMenu(SubMenus menu);
 		void BackMenu();
 		void CloseMenu();
 	}
-
 	namespace Checks 
 	{
 		void Keys();
@@ -88,9 +85,7 @@ namespace MenuClass
 	bool Bool(const char* option, bool& b00l);
 	bool Int(const char* option, int& _int, int min, int max);
 	bool Int(const char* option, int& _int, int min, int max, int step);
-	bool Float(const char* option, float& _float, int min, int max);
-	bool Float(const char* option, float& _float, int min, int max, int step);
-	template <typename VectorType>
-	bool List(const char* option, int& idx, std::vector<VectorType> vec)
+	bool Float(const char* option, float& _float, float min, float max);
+	bool Float(const char* option, float& _float, float min, float max, float step);
 	void End();
 }

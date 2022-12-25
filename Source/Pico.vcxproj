@@ -14,8 +14,8 @@
     <ProjectGuid>{618A4253-6C78-433C-93B5-8C71F873FAD3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Pico</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Pico</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -27,9 +27,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -55,6 +55,11 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>$(ProjectName)</TargetName>
     <TargetExt>.dll</TargetExt>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)MinHook\lib</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>false</VcpkgEnabled>
+    <VcpkgManifestInstall>false</VcpkgManifestInstall>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -62,13 +67,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;WIN32_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)MinHook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)MinHook\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Projects\vcpkg\installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libMinHook-x64-v140-mdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -79,9 +82,9 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;WIN32_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;WIN32_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)MinHook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -89,178 +92,28 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)MinHook\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libMinHook-x64-v140-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)MinHook\lib\minhook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="gta\net_game_event.hpp" />
-    <ClInclude Include="gta\vector.hpp" />
-    <ClInclude Include="headers\CrossMapping.h" />
-    <ClInclude Include="headers\enums.h" />
-    <ClInclude Include="headers\Hooking.h" />
-    <ClInclude Include="headers\Log.h" />
-    <ClInclude Include="headers\OffsetHandler.h" />
-    <ClInclude Include="headers\resource.h" />
-    <ClInclude Include="headers\ScriptGlobal.h" />
-    <ClInclude Include="headers\SignatureScanner.h" />
-    <ClInclude Include="headers\MenuClass.h" />
-    <ClInclude Include="headers\NativeCaller.h" />
-    <ClInclude Include="headers\NativeInvoker.h" />
-    <ClInclude Include="headers\Natives.h" />
-    <ClInclude Include="headers\Script.h" />
-    <ClInclude Include="headers\stdafx.h" />
-    <ClInclude Include="headers\Types.h" />
-    <ClInclude Include="vendor\GTAV-Classes\base\CBaseModelInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\CNavigation.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\CObject.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\datBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\fwArchetype.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\fwArchetypeDef.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\fwExtensibleBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\fwExtension.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\fwExtensionContainer.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\fwRefAwareBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\fwRefAwareBaseImpl.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\HashTable.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\pgBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\phArchetype.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\phBound.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\phBoundCapsule.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\base\phBoundComposite.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\camera\CCameraAngles.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\camera\CCameraManagerAngles.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\camera\CGameCameraAngles.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\automobile\CAutomobileCreationNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\CPedComponents.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\door\CDoorCreationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\dynamic_entity\CDynamicEntityGameStateDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\entity\CEntityOrientationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\entity\CEntityScriptGameStateDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\object\CObjectCreationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedAIDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedAppearanceDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedAttachDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedCreationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedGameStateDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedHealthDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedInventoryDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedScriptCreationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\ped\CPedTaskSpecificDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\physical\CPhysicalAngVelocityDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\physical\CPhysicalAttachDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\physical\CPhysicalHealthDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\physical\CPhysicalVelocityDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\pickup\CPickupCreationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\pickup_placement\CPickupPlacementCreationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\player\CPlayerAppearanceDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\player\CPlayerCreationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\player\CPlayerGamerDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\player\CPlayerGameStateDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\player\CPlayerSectorPosNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\proximity_migrateable\CGlobalFlagsDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\proximity_migrateable\CMigrationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\proximity_migrateable\CSectorDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\proximity_migrateable\CSectorPositionDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\train\CTrainGameStateDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\vehicle\CVehicleCreationDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\datanodes\vehicle\CVehicleGadgetDataNode.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\draw_handlers\CEntityDrawHandler.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\draw_handlers\CObjectDrawHandler.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\draw_handlers\CPedDrawHandler.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\draw_handlers\CVehicleDrawHandler.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\draw_handlers\fwDrawData.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\entities\CAttackers.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\entities\CDynamicEntity.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\entities\CEntity.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\entities\CPhysical.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\entities\fwEntity.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\enums\eExplosionTag.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\enums\eHandlingType.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\misc\CTunables.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\CCommunications.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\ChatData.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\CJoinRequestContext.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\ClanData.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\CMsgJoinResponse.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\CMsgTextMessage.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\CNetComplaintMgr.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\CNetGamePlayer.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\CNetGamePlayerDataMsg.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\CNetworkPlayerMgr.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\netObject.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\netPlayer.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\netPlayerMgrBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\Network.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\RemoteGamerInfoMsg.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\network\snSession.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\ped\CPed.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\ped\CPedBoneInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\ped\CPedFactory.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\ped\CPedInventory.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\ped\CPedModelInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\ped\CPedOxygenInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\ped\CPedWeaponManager.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\player\CNonPhysicalPlayerData.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\player\CPlayerAngles.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\player\CPlayerInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\atArray.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\atSingleton.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\joaat.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\netSyncDataNodeBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\netSyncNodeBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\netSyncTree.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\rlGamerHandle.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\rlGamerInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\rlGamerInfoBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\rlMetric.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\rlSessionByGamerTaskResult.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\rlSessionInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\sysMemAllocator.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\rage\vector.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\dataList.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\GtaThread.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scriptHandler.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scriptHandlerMgr.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scriptHandlerNetComponent.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scriptId.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scriptIdBase.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scriptResource.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scrNativeHandler.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scrNativeRegistration.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scrNativeRegistrationTable.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scrProgram.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scrProgramTable.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scrProgramTableEntry.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scrThread.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\scrThreadContext.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\script\tlsContext.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\security\ObfVar.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\security\RageSecurity.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\socialclub\FriendInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\socialclub\FriendRegistry.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\socialclub\ScInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\vehicle\CAdvancedData.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\vehicle\CBaseSubHandlingData.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\vehicle\CCarHandlingData.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\vehicle\CHandlingData.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\vehicle\CHandlingObject.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\vehicle\CVehicle.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\vehicle\CVehicleModelInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\weapon\CAmmoInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\weapon\CAmmoProjectileInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\weapon\CAmmoRocketInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\weapon\CAmmoThrownInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\weapon\CHomingRocketParams.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\weapon\CItemInfo.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\weapon\CWeaponBoneId.hpp" />
-    <ClInclude Include="vendor\GTAV-Classes\weapon\CWeaponInfo.hpp" />
+    <ClInclude Include="CrossMapping.h" />
+    <ClInclude Include="enums.h" />
+    <ClInclude Include="Hooking.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="OffsetHandler.h" />
+    <ClInclude Include="ScriptGlobal.h" />
+    <ClInclude Include="SignatureScanner.h" />
+    <ClInclude Include="MenuClass.h" />
+    <ClInclude Include="NativeCaller.h" />
+    <ClInclude Include="NativeInvoker.h" />
+    <ClInclude Include="Natives.h" />
+    <ClInclude Include="Script.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\CrossMapping.cpp" />
-    <ClCompile Include="src\Functions.cpp" />
-    <ClCompile Include="src\functions\Misc.cpp" />
-    <ClCompile Include="src\functions\vehicle.cpp" />
-    <ClCompile Include="src\Main.cpp">
+    <ClCompile Include="CrossMapping.cpp" />
+    <ClCompile Include="Main.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </PrecompiledHeader>
@@ -268,24 +121,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Hooking.cpp" />
-    <ClCompile Include="src\Log.cpp" />
-    <ClCompile Include="src\MenuClass.cpp" />
-    <ClCompile Include="src\NativeInvoker.cpp" />
-    <ClCompile Include="src\Script.cpp" />
-    <ClCompile Include="src\stdafx.cpp">
+    <ClCompile Include="Hooking.cpp" />
+    <ClCompile Include="Log.cpp">
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="MenuClass.cpp" />
+    <ClCompile Include="NativeInvoker.cpp" />
+    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="vendor\GTAV-Classes\build\CMakeFiles\3.25.0-rc4\CompilerIdCXX\CMakeCXXCompilerId.cpp" />
-    <ClCompile Include="vendor\GTAV-Classes\build\CMakeFiles\3.25.0-rc4\CompilerIdC\CMakeCCompilerId.c" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="src\NativeSpoofer.asm" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="vendor\GTAV-Classes\build\CMakeFiles\3.25.0-rc4\CMakeDetermineCompilerABI_C.bin" />
-    <None Include="vendor\GTAV-Classes\build\CMakeFiles\3.25.0-rc4\CMakeDetermineCompilerABI_CXX.bin" />
+    <MASM Include="NativeSpoofer.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

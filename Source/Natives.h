@@ -1,6 +1,5 @@
 #pragma once
-#include "Types.h"
-#include "NativeCaller.h"
+#include "stdafx.h"
 
 // Generated on 19/09/2022, 12:12:31
 // https://nativedb.spyral.dev

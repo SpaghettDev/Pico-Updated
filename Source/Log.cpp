@@ -1,4 +1,4 @@
-#include "../headers/stdafx.h"
+#include "stdafx.h"
 #include <time.h>
 #include <cstdio>
 
@@ -15,7 +15,7 @@ void Log::Init(HMODULE hModule)
 	if (AllocConsole())
 	{
 		freopen_s(reinterpret_cast<FILE**>(stdout), "CONOUT$", "w", stdout);
-		SetConsoleTitleW((LPCWSTR)MenuName);
+		SetConsoleTitleW(L"Pico");
 		SetConsoleCP(CP_UTF8);
 		SetConsoleOutputCP(CP_UTF8);
 	}
@@ -27,10 +27,9 @@ void Log::Init(HMODULE hModule)
 		size_t slash = -1;
 
 		for (size_t i = 0; i < strlen(g_logFile); i++)
-		{
 			if (g_logFile[i] == '/' || g_logFile[i] == '\\')
 				slash = i;
-		}
+
 		char chLogBuff[CHARS_FOR_BUFF];
 		char szTimestamp[30];
 		struct tm current_tm;
@@ -38,20 +37,20 @@ void Log::Init(HMODULE hModule)
 
 		localtime_s(&current_tm, &current_time);
 		sprintf_s(szTimestamp, "[%02d:%02d:%02d] %%s\n", current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec);
-		sprintf_s(chLogBuff, szTimestamp, std::format("Initialize: {}", MenuName).c_str());
+		sprintf_s(chLogBuff, szTimestamp, "Initialize: Pico Base");
 		if (slash != -1)
 		{
 			g_logFile[slash + 1] = '\0';
 			strcpy_s(g_debugLogFile, g_logFile);
-			strcat_s(g_debugLogFile, std::format("{}.log", MenuName).c_str());
-			
+			strcat_s(g_debugLogFile, "Pico.log");
+
 			FILE* file;
 			if ((fopen_s(&file, g_debugLogFile, "w")) == 0)
 			{
 				fprintf_s(file, "%s", chLogBuff);
 				fclose(file);
 			}
-			OutputDebugStringA(std::format("Initialize: {}", MenuName).c_str());
+			OutputDebugStringA("Initialize: Pico Base");
 		}
 		else
 			useFileOutput = false;
@@ -61,13 +60,13 @@ void Log::Init(HMODULE hModule)
 
 	Log::Msg(R"(
 
-  _____ _           
- |  __ (_)          
- | |__) |  ___ ___  
- |  ___/ |/ __/ _ \ 
- | |   | | (_| (_) |
- |_|   |_|\___\___/                                       
-                                              )");
+_____ _           
+|  __ (_)          
+| |__) |  ___ ___  
+|  ___/ |/ __/ _ \ 
+| |   | | (_| (_) |
+|_|   |_|\___\___/                                       
+                                            )");
 }
 
 void Log::Msg(const char* fmt, ...)
@@ -108,7 +107,6 @@ void Log::Msg(const char* fmt, ...)
 	printf("\n");
 	va_end(args);
 }
-
 
 void Log::Error(const char* fmt, ...)
 {
@@ -181,5 +179,5 @@ void Log::Fatal(const char* fmt, ...)
 	printf("\n");
 	va_end(args);
 
-	g_Running = false;
+	pico::g_Running = false;
 }

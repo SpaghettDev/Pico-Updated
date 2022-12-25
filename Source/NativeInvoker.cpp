@@ -1,4 +1,4 @@
-#include "headers/stdafx.h"
+#include "stdafx.h"
 
 extern "C" void	_call_asm(void* context, void* function, void* ret);
 static NativeManagerContext g_context;
@@ -25,6 +25,7 @@ uint64_t* nativeCall()
 	if (fn != 0)
 	{
 		static void* exceptionAddress;
+
 		__try
 		{
 			_call_asm(&g_context, fn, g_Hooking.m_NativeSpoofer);
@@ -38,3 +39,4 @@ uint64_t* nativeCall()
 
 	return reinterpret_cast<uint64_t*>(g_context.GetResultPointer());
 }
+

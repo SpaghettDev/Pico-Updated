@@ -24,11 +24,10 @@
 #include <unordered_map>
 #include <algorithm>
 #include <functional>
-#include <psapi.h>
+#include <Psapi.h>
 #include <MinHook.h>
 #include <timeapi.h>
 #include <time.h>
-#include <format>
 
 // Additional Header Files:
 #include "Log.h"
@@ -42,9 +41,6 @@
 #include "Natives.h"
 #include "Hooking.h"
 #include "Types.h"
-#include "../gta/net_game_event.hpp"
-#include "../vendor/GTAV-Classes/network/CNetGamePlayer.hpp" // there must be a better way lol
-#include "../gta/vector.hpp"
 
 // Menu Files:
 #include "MenuClass.h"
@@ -54,5 +50,10 @@
 #include <codecvt>
 #include <stdio.h>
 
-extern std::atomic_bool g_Running;
-extern constexpr const char* MenuName = "Pico-Updated"; // Make sure the string can be used to create a file!
+namespace pico
+{
+	inline std::atomic_bool g_Running{ false };
+	inline HANDLE g_MainThread;
+	inline DWORD g_MainThreadID;
+	inline HMODULE g_hModule;
+}

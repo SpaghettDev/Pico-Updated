@@ -8,12 +8,11 @@ private:
 	uintptr_t m_begin;
 	uintptr_t m_end;
 	DWORD m_size;
-
 public:
 	template<typename TReturn, typename TOffset>
 	TReturn* getRva(TOffset rva)
 	{
-		return (TReturn*)(m_begin + rva);
+		return reinterpret_cast<TReturn*>(m_begin + rva);
 	}
 
 	explicit Module(void* module = GetModuleHandle(nullptr))
@@ -90,12 +89,6 @@ namespace SignatureScanner
 		}
 
 		template <typename T>
-		typename std::enable_if_t<std::is_pointer_v<T>, T> handle::as()
-		{
-			return static_cast<T>(ptr);
-		}
-
-		template <typename T>
 		typename std::enable_if<std::is_lvalue_reference<T>::value, T>::type as() const
 		{
 			return *this->as<typename std::remove_reference<T>::type*>();
@@ -169,9 +162,9 @@ namespace SignatureScanner
 		}
 
 		template <typename T>
-		handle sub(T offset)
+		typename std::enable_if<std::is_integral<T>::value, handle>::type sub(const T offset) const
 		{
-			return handle(as<std::uintptr_t>() - offset);
+			return this->as<std::intptr_t>() - offset;
 		}
 
 		template <typename T>
@@ -180,9 +173,9 @@ namespace SignatureScanner
 			return this->add(ipoffset).add(this->as<int&>());
 		}
 
-		handle rip()
+		handle rip() const
 		{
-			return add(as<std::int32_t&>()).add(4);
+			return this->add(this->as<std::int32_t&>()).add(4);
 		}
 
 		handle translate(const handle from, const handle to) const
@@ -193,7 +186,7 @@ namespace SignatureScanner
 #ifdef _MEMORYAPI_H_
 		bool protect(const std::size_t size, const std::uint32_t newProtect, const std::uint32_t* oldProtect)
 		{
-			return VirtualProtect(this->as<void*>(), size, (DWORD)newProtect, (DWORD*)&oldProtect) == TRUE;
+			return VirtualProtect(this->as<void*>(), size, static_cast<DWORD>(newProtect), reinterpret_cast<DWORD*>(&oldProtect)) == TRUE;
 		}
 
 		bool nop(const std::size_t size)
@@ -314,12 +307,8 @@ namespace SignatureScanner
 		bool compare(const handle address) const
 		{
 			for (std::size_t i = 0; i < nibbles.size(); ++i)
-			{
 				if (!nibbles[i].matches(address.as<const type*>() + i))
-				{
 					return false;
-				}
-			}
 
 			return true;
 		}
@@ -363,25 +352,17 @@ namespace SignatureScanner
 						reinterpret_cast<std::uint8_t*>(&current_nibble.expected)[i / 2] |= (value << shift);
 					}
 					else if (c != '?' && shift == 4)
-					{
 						continue;
-					}
 
 					if (++i == (sizeof(type) * 2))
-					{
 						break;
-					}
 				}
 
 				if (i > 0)
-				{
 					nibbles.push_back(current_nibble);
-				}
 
 				if (i < (sizeof(type) * 2))
-				{
 					break;
-				}
 			}
 		}
 
@@ -390,12 +371,8 @@ namespace SignatureScanner
 			end.add(-static_cast<std::intptr_t>(nibbles.size() * sizeof(type)));
 
 			for (handle current = base; current < end; current = current.add(1))
-			{
 				if (compare(current))
-				{
 					return current;
-				}
-			}
 
 			return nullptr;
 		}
@@ -405,9 +382,7 @@ namespace SignatureScanner
 			std::vector<handle> results;
 
 			for (handle current = base; current = this->scan(current, end); current = current.add(1))
-			{
 				results.push_back(current);
-			}
 
 			return results;
 		}
@@ -501,9 +476,7 @@ namespace SignatureScanner
 			for (std::size_t i = 0; i < size(); ++i)
 			{
 				if (i && padded)
-				{
 					stream << ' ';
-				}
 
 				stream << hexTable[(base().as<const std::uint8_t*>()[i] >> 4) & 0xF];
 				stream << hexTable[(base().as<const std::uint8_t*>()[i] >> 0) & 0xF];
@@ -626,20 +599,22 @@ namespace SignatureScanner
 
 	inline uintptr_t get_multilayer_pointer(uintptr_t base_address, std::vector<DWORD> offsets)
 	{
-		uintptr_t ptr = *(uintptr_t*)(base_address);
-		if (!ptr) {
+		uintptr_t ptr = *reinterpret_cast<uintptr_t*>(base_address);
+		if (!ptr)
 			return NULL;
-		}
+
 		auto level = offsets.size();
 
 		for (auto i = 0; i < level; i++) {
-			if (i == level - 1) {
+			if (i == level - 1)
+			{
 				ptr += offsets[i];
 				if (!ptr)
 					return NULL;
 				return ptr;
 			}
-			else {
+			else
+			{
 				ptr = *(uint64_t*)(ptr + offsets[i]);
 				if (!ptr)
 					return NULL;
@@ -655,15 +630,15 @@ namespace SignatureScanner
 		if (Addr == NULL) return NULL;
 		uintptr_t ML = get_multilayer_pointer(Addr, offsets);
 		if (ML == NULL) return NULL;
-		return *((T*)ML);
+		return *reinterpret_cast<T*>(ML);
 	}
 
 	template <typename T>
-	void set_value(uintptr_t Addr, std::vector<DWORD> offsets, T value) {
+	void set_value(uintptr_t Addr, std::vector<DWORD> offsets, T value)
+	{
 		uintptr_t ML = get_multilayer_pointer(Addr, offsets);
-		if (ML == NULL) {
+		if (ML == NULL)
 			return;
-		}
 
 		*reinterpret_cast<T*>(ML) = value;
 	}
@@ -672,9 +647,7 @@ namespace SignatureScanner
 inline SignatureScanner::handle operator""_Scan(const char* string, std::size_t)
 {
 	if (auto handle = SignatureScanner::module::named(nullptr).scan(string))
-	{
 		return handle;
-	}
 
 	Log::Error("Pattern Fail! - %s", string);
 

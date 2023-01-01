@@ -1,7 +1,7 @@
 #pragma once
-#include "NativeInvoker.h"
+#include "native_invoker.h"
 #include "enums.h"
-#include "Hooking.h"
+#include "hooking.h"
 #include "stdafx.h"
 #include <valarray>
 
@@ -652,7 +652,7 @@ inline SignatureScanner::handle operator""_Scan(const char* string, std::size_t)
 	if (auto handle = SignatureScanner::module::named(nullptr).scan(string))
 		return handle;
 
-	Log::Error("Pattern Fail! - %s", string);
+	LOG_ERR("Pattern Fail! - %s", string);
 
 	return nullptr;
 }

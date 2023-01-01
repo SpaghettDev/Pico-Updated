@@ -24,27 +24,30 @@
 #include <unordered_map>
 #include <algorithm>
 #include <functional>
-#include <Psapi.h>
+#include <psapi.h>
 #include <MinHook.h>
 #include <timeapi.h>
 #include <time.h>
+#include <filesystem>
+#include <regex>
 
 // Additional Header Files:
-#include "Log.h"
-#include "SignatureScanner.h"
-#include "OffsetHandler.h"
-#include "Types.h"
+#include "log.h"
+#include "signature_scanner.h"
+#include "offset_handler.h"
+#include "types.h"
 #include "enums.h"
-#include "CrossMapping.h"
-#include "NativeInvoker.h"
-#include "NativeCaller.h"
-#include "Natives.h"
-#include "Hooking.h"
-#include "Types.h"
+#include "crossmapping.h"
+#include "native_invoker.h"
+#include "native_caller.h"
+#include "natives.h"
+#include "hooking.h"
+#include "types.h"
+#include "hotkeys.h"
 
 // Menu Files:
-#include "MenuClass.h"
-#include "Script.h"
+#include "menu_class.h"
+#include "script.h"
 
 #include <locale>
 #include <codecvt>
@@ -52,8 +55,10 @@
 
 namespace pico
 {
-	inline std::atomic_bool g_Running{ false };
-	inline HANDLE g_MainThread;
-	inline DWORD g_MainThreadID;
-	inline HMODULE g_hModule;
+	inline std::atomic_bool g_running{ false };
+	inline HANDLE g_mainthread;
+	inline DWORD g_mainthread_id;
+	inline HMODULE g_hmodule;
+	inline HWND g_hwnd;
+	inline WNDPROC g_og_wndproc;
 }

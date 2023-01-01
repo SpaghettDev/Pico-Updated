@@ -8,7 +8,7 @@ public:
 	T GetValue(std::vector<DWORD> Offsets)
 	{
 
-		uintptr_t Adress = GetMultilayerPointer(reinterpret_cast<uintptr_t>(g_Hooking.m_WorldPointer), Offsets);
+		uintptr_t Adress = GetMultilayerPointer(reinterpret_cast<uintptr_t>(g_hooking.m_WorldPointer), Offsets);
 		if (Adress == NULL)
 			return NULL;
 
@@ -18,7 +18,7 @@ public:
 	template <typename T>
 	void SetValue(std::vector<DWORD> Offsets, T Value)
 	{
-		uintptr_t Adress = GetMultilayerPointer(reinterpret_cast<uintptr_t>(g_Hooking.m_WorldPointer), Offsets);
+		uintptr_t Adress = GetMultilayerPointer(reinterpret_cast<uintptr_t>(g_hooking.m_WorldPointer), Offsets);
 		if (Adress == NULL)
 			return;
 

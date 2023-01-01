@@ -12,80 +12,113 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Source Files\functions">
+      <UniqueIdentifier>{90104589-aa70-4c86-8b24-09df64994737}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gta">
+      <UniqueIdentifier>{30a77005-5c72-4770-b3de-68a03b538f99}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Log.h">
+    <ClInclude Include="log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Types.h">
+    <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NativeCaller.h">
+    <ClInclude Include="native_caller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SignatureScanner.h">
+    <ClInclude Include="signature_scanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NativeInvoker.h">
+    <ClInclude Include="native_invoker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CrossMapping.h">
+    <ClInclude Include="crossmapping.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Script.h">
+    <ClInclude Include="script.h">
       <Filter>Menu</Filter>
     </ClInclude>
-    <ClInclude Include="MenuClass.h">
+    <ClInclude Include="menu_class.h">
       <Filter>Menu</Filter>
     </ClInclude>
     <ClInclude Include="enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hooking.h">
+    <ClInclude Include="hooking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Natives.h">
+    <ClInclude Include="natives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptGlobal.h">
+    <ClInclude Include="script_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OffsetHandler.h">
+    <ClInclude Include="offset_handler.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hotkeys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.hpp">
+      <Filter>Source Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="misc.hpp">
+      <Filter>Source Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle.hpp">
+      <Filter>Source Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="net_game_event.hpp">
+      <Filter>Header Files\gta</Filter>
+    </ClInclude>
+    <ClInclude Include="CNetGamePlayer.hpp">
+      <Filter>Header Files\gta</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Log.cpp">
+    <ClCompile Include="log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NativeInvoker.cpp">
+    <ClCompile Include="native_invoker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Script.cpp">
+    <ClCompile Include="script.cpp">
       <Filter>Menu</Filter>
     </ClCompile>
-    <ClCompile Include="MenuClass.cpp">
+    <ClCompile Include="menu_class.cpp">
       <Filter>Menu</Filter>
     </ClCompile>
-    <ClCompile Include="CrossMapping.cpp">
+    <ClCompile Include="crossmapping.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hooking.cpp">
+    <ClCompile Include="hooking.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hotkeys.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="joaat.hpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="NativeSpoofer.asm">
       <Filter>Source Files</Filter>
     </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

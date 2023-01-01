@@ -20,7 +20,7 @@ void nativePush64(UINT64 value)
 
 uint64_t* nativeCall()
 {
-	auto fn = Hooking::GetNativeHandler(g_hash);
+	auto fn = Hooking::get_native_handler(g_hash);
 
 	if (fn != 0)
 	{
@@ -28,12 +28,12 @@ uint64_t* nativeCall()
 
 		__try
 		{
-			_call_asm(&g_context, fn, g_Hooking.m_NativeSpoofer);
+			_call_asm(&g_context, fn, g_hooking.m_NativeSpoofer);
 			scrNativeCallContext::SetVectorResults(&g_context);
 		}
 		__except (exceptionAddress = (GetExceptionInformation())->ExceptionRecord->ExceptionAddress, EXCEPTION_EXECUTE_HANDLER)
 		{
-			Log::Error("executing native 0x%016llx at address %p.", g_hash, exceptionAddress);
+			LOG_ERR("executing native 0x%016llx at address %p.", g_hash, exceptionAddress);
 		}
 	}
 

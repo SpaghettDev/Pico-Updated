@@ -38,7 +38,7 @@ public:
 private:
 	static void* IndexToPtr(std::size_t index)
 	{
-		return (g_Hooking.m_GlobalBase[index >> 0x12 & 0x3F]) + (index & 0x3FFFF);
+		return (g_hooking.m_GlobalBase[index >> 0x12 & 0x3F]) + (index & 0x3FFFF);
 	}
 
 	std::uintptr_t m_Index;

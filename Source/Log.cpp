@@ -2,15 +2,24 @@
 #include <time.h>
 #include <cstdio>
 
-char g_logFile[MAX_PATH];
-char g_debugLogFile[MAX_PATH];
+char* Log::g_log_file_path;
+static char g_debug_log_file[MAX_PATH];
 
 #define CHARS_FOR_BUFF 4096
 #define CHARS_FOR_PARAMS 3500
 
-static bool useFileOutput = true;
+namespace
+{
+	std::map<LogLevel, const char*> level_to_str = {
+		{ LogLevel::MESSAGE, "MESSAGE" },
+		{ LogLevel::DEBUG, "DEBUG" },
+		{ LogLevel::ERROR_, "ERROR" },
+		{ LogLevel::FATAL, "FATAL" }
+	};
+}
 
-void Log::Init(HMODULE hModule)
+
+void Log::init(HMODULE hModule)
 {
 	if (AllocConsole())
 	{
@@ -20,156 +29,76 @@ void Log::Init(HMODULE hModule)
 		SetConsoleOutputCP(CP_UTF8);
 	}
 
-	memset(g_logFile, 0, sizeof(g_logFile));
+	char log_buffer[CHARS_FOR_BUFF];
+	char timestamp[50];
+	struct tm current_tm;
+	time_t current_time = time(NULL);
 
-	if (GetModuleFileNameA(hModule, g_logFile, MAX_PATH) != 0)
+	localtime_s(&current_tm, &current_time);
+	sprintf_s(timestamp, "[%02d:%02d:%02d] %%s\n", current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec);
+	sprintf_s(log_buffer, timestamp, "Initialize: Pico Base");
+
 	{
-		size_t slash = -1;
+		std::string temp = std::format(R"({}\Pico\)", std::getenv("appdata"));
+		g_log_file_path = temp.data();
+	}
 
-		for (size_t i = 0; i < strlen(g_logFile); i++)
-			if (g_logFile[i] == '/' || g_logFile[i] == '\\')
-				slash = i;
+	std::filesystem::create_directory(g_log_file_path);
 
-		char chLogBuff[CHARS_FOR_BUFF];
-		char szTimestamp[30];
-		struct tm current_tm;
-		time_t current_time = time(NULL);
+	strcpy_s(g_debug_log_file, g_log_file_path);
+	strcat_s(g_debug_log_file, "Pico.log");
 
-		localtime_s(&current_tm, &current_time);
-		sprintf_s(szTimestamp, "[%02d:%02d:%02d] %%s\n", current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec);
-		sprintf_s(chLogBuff, szTimestamp, "Initialize: Pico Base");
-		if (slash != -1)
-		{
-			g_logFile[slash + 1] = '\0';
-			strcpy_s(g_debugLogFile, g_logFile);
-			strcat_s(g_debugLogFile, "Pico.log");
+	std::ofstream file_in(g_debug_log_file);
+	file_in << ""; // clear file
+	file_in << log_buffer;
+	file_in.close();
 
-			FILE* file;
-			if ((fopen_s(&file, g_debugLogFile, "w")) == 0)
-			{
-				fprintf_s(file, "%s", chLogBuff);
-				fclose(file);
-			}
-			OutputDebugStringA("Initialize: Pico Base");
-		}
-		else
-			useFileOutput = false;
+	LOG_MSG(R"(
+_______
+|  __ (_)
+| |__) |  ___ ___
+|  ___/ |/ __/ _ \
+| |   | | (_| (_) |
+|_|   |_|\___\___/)");
+}
+
+void Log::log(LogLevel type, const char* file_name, int line, const char* fmt, ...)
+{
+	va_list va_alist;
+	char chLogBuff[CHARS_FOR_BUFF];
+	char chParameters[CHARS_FOR_PARAMS];
+	char szTimestamp[50];
+	struct tm current_tm;
+	time_t current_time = time(NULL);
+	std::string actual_file_name = file_name;
+
+	std::smatch sm;
+
+	if (std::regex_search(actual_file_name, sm, std::regex(R"(\\(\w+)\.(cpp|h|hpp))")))
+	{
+		actual_file_name = sm[0];
+		actual_file_name = actual_file_name.erase(0, 1);
 	}
 	else
-		useFileOutput = false;
-
-	Log::Msg(R"(
-
-_____ _           
-|  __ (_)          
-| |__) |  ___ ___  
-|  ___/ |/ __/ _ \ 
-| |   | | (_| (_) |
-|_|   |_|\___\___/                                       
-                                            )");
-}
-
-void Log::Msg(const char* fmt, ...)
-{
-	va_list va_alist;
-	char chLogBuff[CHARS_FOR_BUFF];
-	char chParameters[CHARS_FOR_PARAMS];
-	char szTimestamp[30];
-	struct tm current_tm;
-	time_t current_time = time(NULL);
+		actual_file_name = "uknown";
 
 	localtime_s(&current_tm, &current_time);
-	sprintf_s(szTimestamp, "[%02d:%02d:%02d] %%s\n", current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec);
+	sprintf_s(szTimestamp, "[%02d:%02d:%02d | %s:%i | %s] %%s\n",
+		current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec, actual_file_name.c_str(), line, level_to_str[type]
+	);
 
 	va_start(va_alist, fmt);
 	_vsnprintf_s(chParameters, sizeof(chParameters), fmt, va_alist);
 	va_end(va_alist);
 	sprintf_s(chLogBuff, szTimestamp, chParameters);
-	if (useFileOutput)
-	{
-		FILE* file;
-		if ((fopen_s(&file, g_debugLogFile, "a")) == 0)
-		{
-			fprintf_s(file, "%s", chLogBuff);
-			fclose(file);
-		}
-	}
-	sprintf_s(chLogBuff, "%s\n", chParameters);
+
 	OutputDebugStringA(chLogBuff);
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE);
-	char buffer[4096]{};
-	va_list args{};
+	std::ofstream file(g_debug_log_file, std::ios::app);
+	file << chLogBuff;
+	file.close();
 
-	va_start(args, fmt);
-	_vsnprintf(buffer, sizeof(buffer), fmt, args) + 1;
-	printf(buffer);
-	printf("\n");
-	va_end(args);
-}
-
-void Log::Error(const char* fmt, ...)
-{
-	va_list va_alist;
-	char chLogBuff[CHARS_FOR_BUFF];
-	char chParameters[CHARS_FOR_PARAMS];
-	char szTimestamp[30];
-	struct tm current_tm;
-	time_t current_time = time(NULL);
-	FILE* file;
-
-	localtime_s(&current_tm, &current_time);
-	sprintf_s(szTimestamp, "[%02d:%02d:%02d] ERROR: %%s\n", current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec);
-
-	va_start(va_alist, fmt);
-	_vsnprintf_s(chParameters, sizeof(chParameters), fmt, va_alist);
-	va_end(va_alist);
-	sprintf_s(chLogBuff, szTimestamp, chParameters);
-	if ((fopen_s(&file, g_debugLogFile, "a")) == 0)
-	{
-		fprintf_s(file, "%s", chLogBuff);
-		fclose(file);
-	}
-
-	MessageBoxA(NULL, chLogBuff, "ERROR", MB_ICONERROR);
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
-	char buffer[4096]{};
-	va_list args{};
-
-	va_start(args, fmt);
-	_vsnprintf(buffer, sizeof(buffer), fmt, args) + 1;
-	printf(buffer);
-	printf("\n");
-	va_end(args);
-}
-
-void Log::Fatal(const char* fmt, ...)
-{
-	va_list va_alist;
-	char chLogBuff[CHARS_FOR_BUFF];
-	char chParameters[CHARS_FOR_PARAMS];
-	char szTimestamp[30];
-	struct tm current_tm;
-	time_t current_time = time(NULL);
-	FILE* file;
-
-	localtime_s(&current_tm, &current_time);
-	sprintf_s(szTimestamp, "[%02d:%02d:%02d] FATAL: %%s\n", current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec);
-
-	va_start(va_alist, fmt);
-	_vsnprintf_s(chParameters, sizeof(chParameters), fmt, va_alist);
-	va_end(va_alist);
-	sprintf_s(chLogBuff, szTimestamp, chParameters);
-	if ((fopen_s(&file, g_debugLogFile, "a")) == 0)
-	{
-		fprintf_s(file, "%s", chLogBuff);
-		fclose(file);
-	}
-
-	MessageBoxA(NULL, chLogBuff, "FATAL ERROR", MB_ICONERROR);
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_BLUE);
 	char buffer[4096]{};
 	va_list args{};
 
@@ -179,5 +108,6 @@ void Log::Fatal(const char* fmt, ...)
 	printf("\n");
 	va_end(args);
 
-	pico::g_Running = false;
+	if (type == LogLevel::FATAL)
+		pico::g_running = false;
 }

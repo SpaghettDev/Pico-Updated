@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "log.h"
 
 /*##################################################################################################*/
 ::std::unordered_map<uint64_t, uint64_t> nativeHashMap;
@@ -6392,10 +6393,10 @@ uint64_t __HASHMAPDATA[] = {
     0x8e580ab902917360, 0x991a5b9f19c6f831,
 };
 
-void CrossMapping::initNativeMap()
+void CrossMapping::init_native_map()
 {
 	static bool init = false;
-	struct twoQwords {
+	struct twoQwords { // TODO: replace with std::pair
 		uint64_t first;
 		uint64_t second;
 	} *p2q;
@@ -6422,21 +6423,18 @@ static nMap nativeCache;
 
 bool CrossMapping::searchMap(nMap map, uint64_t inNative, uint64_t* outNative)
 {
-	bool found = false;
 	//LOG_DEBUG("inNative 0x%016llx", inNative);
-	for (nMap::const_iterator it = map.begin(); it != map.end(); ++it)
+	for (auto const& mapping : map)
 	{
-		found = (inNative == it->first);
-		if (found)
+		if (inNative == mapping.first)
         {
-			*outNative = it->second;
+			*outNative = mapping.second;
 			//LOG_DEBUG("outNative 0x%016llx", outNative);
-			break;
+			return true;
 		}
 	}
 
-	return found;
-
+	return false;
 }
 
 uint64_t CrossMapping::MapNative(uint64_t inNative)
@@ -6446,7 +6444,8 @@ uint64_t CrossMapping::MapNative(uint64_t inNative)
 
 	currentNative = inNative;
 	found = searchMap(nativeCache, currentNative, &outNative);
-	if (found) return outNative;
+	if (found)
+        return outNative;
 	found = searchMap(nativeHashMap, currentNative, &outNative);
 	if (found)
     {
@@ -6460,7 +6459,7 @@ uint64_t CrossMapping::MapNative(uint64_t inNative)
 		return NULL;
 	else
         nativeFailedVec.push_back(inNative);
-	Log::Error("Failed to find new hash for 0x%p", inNative);
+	LOG_ERR("Failed to find new hash for 0x%p", inNative);
 	return NULL;
 }
 
@@ -6469,6 +6468,7 @@ void CrossMapping::dumpNativeMappingCache()
 	FILE* file;
 	int file_exists;
 	char filename[0x400];
+    strcpy_s(filename, Log::g_log_file_path);
 	snprintf(filename, sizeof(filename), "NativeCache.log");
 	/*first check if the file exists...*/
 	fopen_s(&file, filename, "r");
@@ -6484,9 +6484,10 @@ void CrossMapping::dumpNativeMappingCache()
 	if (file != NULL)
 	{
 		char buffer[50];
-		for (nMap::const_iterator it = nativeCache.begin(); it != nativeCache.end(); ++it)
+
+		for (auto const& mapping : nativeCache)
 		{
-			sprintf_s(buffer, " 0x%llx, 0x%llx ,\n", it->first, it->second);
+			sprintf_s(buffer, "0x%llx 0x%llx\n", mapping.first, mapping.second);
 			fputs(buffer, file);
 		}
 

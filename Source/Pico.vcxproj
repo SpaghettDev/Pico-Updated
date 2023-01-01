@@ -96,24 +96,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CrossMapping.h" />
+    <ClInclude Include="CNetGamePlayer.hpp" />
+    <ClInclude Include="crossmapping.h" />
     <ClInclude Include="enums.h" />
-    <ClInclude Include="Hooking.h" />
-    <ClInclude Include="Log.h" />
-    <ClInclude Include="OffsetHandler.h" />
-    <ClInclude Include="ScriptGlobal.h" />
-    <ClInclude Include="SignatureScanner.h" />
-    <ClInclude Include="MenuClass.h" />
-    <ClInclude Include="NativeCaller.h" />
-    <ClInclude Include="NativeInvoker.h" />
-    <ClInclude Include="Natives.h" />
-    <ClInclude Include="Script.h" />
+    <ClInclude Include="hooking.h" />
+    <ClInclude Include="hotkeys.h" />
+    <ClInclude Include="log.h" />
+    <ClInclude Include="misc.hpp" />
+    <ClInclude Include="net_game_event.hpp" />
+    <ClInclude Include="offset_handler.h" />
+    <ClInclude Include="script_global.h" />
+    <ClInclude Include="signature_scanner.h" />
+    <ClInclude Include="menu_class.h" />
+    <ClInclude Include="native_caller.h" />
+    <ClInclude Include="native_invoker.h" />
+    <ClInclude Include="natives.h" />
+    <ClInclude Include="script.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Types.h" />
+    <ClInclude Include="types.h" />
+    <ClInclude Include="utils.hpp" />
+    <ClInclude Include="vehicle.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CrossMapping.cpp" />
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="crossmapping.cpp" />
+    <ClCompile Include="hotkeys.cpp" />
+    <ClCompile Include="joaat.hpp" />
+    <ClCompile Include="main.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </PrecompiledHeader>
@@ -121,13 +129,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Hooking.cpp" />
-    <ClCompile Include="Log.cpp">
+    <ClCompile Include="hooking.cpp" />
+    <ClCompile Include="log.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="MenuClass.cpp" />
-    <ClCompile Include="NativeInvoker.cpp" />
-    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="menu_class.cpp" />
+    <ClCompile Include="native_invoker.cpp" />
+    <ClCompile Include="script.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -135,6 +143,9 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="NativeSpoofer.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

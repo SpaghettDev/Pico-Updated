@@ -2,13 +2,14 @@
 
 class netEventMgr;
 class datBitBuffer;
+class CNetGamePlayer;
 
 using GetNumberOfEvents = std::int32_t(std::int32_t eventGroup);
-using GetLabelText = const char* (const char* label);
+using GetLabelText = const char* (void* unk, const char* label);
 using ReceivedEvent = void(
 	netEventMgr* event_manager,
-	__int64 source_player,
-	__int64 target_player,
+	CNetGamePlayer* source_player,
+	CNetGamePlayer* target_player,
 	uint16_t event_id,
 	int event_index,
 	int event_handled_bitset,
@@ -16,13 +17,26 @@ using ReceivedEvent = void(
 	datBitBuffer* buffer
 );
 using ScriptedGameEvent = bool(__int64 NetEventStruct, __int64 CNetGamePlayer);
-using GetPlayerName = const char* (_fastcall*)(int32_t index);
+using SendEventAcknowledge = void(netEventMgr* event_manager, CNetGamePlayer* source_player, CNetGamePlayer* target_player, int event_index, int event_handled_bitset);
+
+// Bitbuffer functions
+using ReadBitbufferDWORD = bool(datBitBuffer* buffer, PVOID read, int bits);
+using ReadBitbufferString = bool(datBitBuffer* buffer, char* read, int bits);
+using ReadBitbufferBool = bool(datBitBuffer* buffer, bool* read, int bits);
+using ReadBitbufferArray = bool(datBitBuffer* buffer, PVOID read, int bits, int unk);
+using WriteBitbufferQWORD = bool(datBitBuffer* buffer, uint64_t val, int bits);
+using WriteBitbufferDWORD = bool(datBitBuffer* buffer, uint32_t val, int bits);
+using WriteBitbufferInt64 = bool(datBitBuffer* buffer, int64_t val, int bits);
+using WriteBitbufferInt32 = bool(datBitBuffer* buffer, int32_t val, int bits);
+using WriteBitbufferBool = bool(datBitBuffer* buffer, bool val, int bits);
+using WriteBitbufferArray = bool(datBitBuffer* buffer, void* val, int bits, int unk);
+
 
 class Hooking
 {
 private:
-	static BOOL InitializeHooks();
-	static void FindPatterns();
+	static bool initialize_hooks();
+	static void find_patterns();
 
 public:
 	static std::vector<LPVOID> m_Hooks;
@@ -35,13 +49,25 @@ public:
 	static std::uint64_t** m_WorldPointer;
 	static std::uint64_t** m_GlobalBase;
 	static PVOID m_ModelSpawnBypass;
-	static GetPlayerName m_GetPlayerName;
 	static void* m_NativeSpoofer;
+	static bool* m_IsSessionStarted;
+	static SendEventAcknowledge* m_SendEventAcknowledge;
 
-	static void Start(HMODULE hmoduleDLL);
-	static void __declspec(noreturn) Cleanup(HMODULE hModule);
-	static void onTickInit();
-	static bool HookNatives();
+	static ReadBitbufferDWORD* m_ReadBitbufferDWORD;
+	static ReadBitbufferArray* m_ReadBitbufferArray;
+	static ReadBitbufferString* m_ReadBitbufferString;
+	static ReadBitbufferBool* m_ReadBitbufferBoolean;
+	static WriteBitbufferDWORD* m_WriteBitbufferDWORD;
+	static WriteBitbufferQWORD* m_WriteBitbufferQWORD;
+	static WriteBitbufferInt64* m_WriteBitbufferInt64;
+	static WriteBitbufferInt32* m_WriteBitbufferInt32;
+	static WriteBitbufferBool* m_WriteBitbufferBoolean;
+	static WriteBitbufferArray* m_WriteBitbufferArray;
+
+	static void init(HMODULE hmoduleDLL);
+	static void __declspec(noreturn) cleanup(HMODULE hModule);
+	static void on_tick_init();
+	static bool hook_natives();
 
 	// Native function handler type
 	typedef void(__cdecl * NativeHandler)(scrNativeCallContext* context);
@@ -94,9 +120,10 @@ public:
 			return nResult;
 		}
 	};
-	static NativeHandler GetNativeHandler(uint64_t origHash);
+	static NativeHandler get_native_handler(uint64_t origHash);
 };
-extern Hooking g_Hooking;
+
+extern Hooking g_hooking;
 
 void WAIT(DWORD ms);
 
@@ -106,4 +133,6 @@ struct MinHookKeepalive
 	~MinHookKeepalive();
 };
 
-extern MinHookKeepalive g_MinHookKeepalive;
+extern MinHookKeepalive g_minhook_keepalive;
+
+#include "net_game_event.hpp"

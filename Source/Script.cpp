@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "vehicle.hpp"
 
 int TestInt = 420;
 float TestFloat = 6.9f;
@@ -9,102 +10,80 @@ void PicoMenu()
 {
 	switch (MenuClass::Settings::currentMenu)
 	{
-	case Main:
+	case SubMenus::MAIN:
 	{
-		MenuClass::Title("Main Menu");
+		MenuClass::title("Main Menu");
 
-		if (MenuClass::Option("Spawn Adder"))
-		{
-			Hash VehicleHash = MISC::GET_HASH_KEY("adder");
-			STREAMING::REQUEST_MODEL(VehicleHash);
-			while (!STREAMING::HAS_MODEL_LOADED(VehicleHash))
-				WAIT(0);
+		if (MenuClass::option("Spawn Adder"))
+			vehicle::spawn_vehicle("adder");
 
-			auto Position = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
-			*reinterpret_cast<unsigned short*>(g_Hooking.m_ModelSpawnBypass) = 0x9090;
-			Vehicle Vehicle = VEHICLE::CREATE_VEHICLE(VehicleHash, Position.x, Position.y, Position.z, 0.f, true, false, false);
-			*reinterpret_cast<unsigned short*>(g_Hooking.m_ModelSpawnBypass) = 0x0574;
+		MenuClass::menu_option("Test Menu", TEST);
 
-			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(VehicleHash);
-			if (NETWORK::NETWORK_IS_SESSION_STARTED())
-			{
-				DECORATOR::DECOR_SET_INT(Vehicle, "MPBitset", 0);
-				ENTITY::SET_ENTITY_SHOULD_FREEZE_WAITING_ON_COLLISION(Vehicle, true);
-				auto NetworkID = NETWORK::VEH_TO_NET(Vehicle);
-				if (NETWORK::NETWORK_GET_ENTITY_IS_NETWORKED(Vehicle))
-					NETWORK::SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(NetworkID, true);
-				VEHICLE::SET_VEHICLE_IS_STOLEN(Vehicle, false);
-			}
-			Log::Msg("We safely spawned a vehicle HURRAY!");
-		}
+		MenuClass::int_option("Test Int", TestInt, 0, 500);
+		MenuClass::int_option("Test Int Custom Step", TestInt, 0, 500, 100);
 
-		MenuClass::MenuOption("Test Menu", Test);
+		MenuClass::float_option("Test Float", TestFloat, 0.f, 10.f);
+		MenuClass::float_option("Test Float Custom Step", TestFloat, 0, 10, 1);
 
-		MenuClass::Int("Test Int", TestInt, 0, 500);
-		MenuClass::Int("Test Int Custom Step", TestInt, 0, 500, 100);
+		MenuClass::bool_option("Test Bool", TestBool);
 
-		MenuClass::Float("Test Float", TestFloat, 0.f, 10.f);
-		MenuClass::Float("Test Float Custom Step", TestFloat, 0, 10, 1);
-
-		MenuClass::Bool("Test Bool", TestBool);
-
-		MenuClass::MenuOption("Settings Menu", Settings);
+		MenuClass::menu_option("Settings Menu", SubMenus::SETTINGS);
 	}
 	break;
-	case Test:
+	case SubMenus::TEST:
 	{
-		MenuClass::Title("Test Menu");
+		MenuClass::title("Test Menu");
 
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
-		MenuClass::Option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
+		MenuClass::option("Filler Options");
 	}
 	break;
-	case Settings:
+	case SubMenus::SETTINGS:
 	{
-		MenuClass::Title("Settings Menu");
+		MenuClass::title("Settings Menu");
 
-		MenuClass::MenuOption("Theme Menu", Settings_Theme);
+		MenuClass::menu_option("Theme Menu", SubMenus::SETTINGS_THEME);
 
-		if (MenuClass::Option("Unload")) 
-			pico::g_Running = false;
-		if (MenuClass::Option("Exit")) 
+		if (MenuClass::option("Unload")) 
+			pico::g_running = false;
+		if (MenuClass::option("Exit")) 
 			exit(0);
 	}
 	break;
-	case Settings_Theme:
+	case SubMenus::SETTINGS_THEME:
 	{
-		MenuClass::Title("Theme Menu");
+		MenuClass::title("Theme Menu");
 
-		MenuClass::MenuOption("Title Text", Settings_Theme_TitleText);
-		MenuClass::MenuOption("Title Background", Settings_Theme_TitleRect);
-		MenuClass::MenuOption("Submenu Bar Text", Settings_Theme_SubmenuBarText);
-		MenuClass::MenuOption("Submenu Bar Background", Settings_Theme_SubmenuBarRect);
-		MenuClass::MenuOption("Submenu Arrow", Settings_Theme_SubmenuArrow);
-		MenuClass::MenuOption("Option Text", Settings_Theme_OptionText);
-		MenuClass::MenuOption("Option Background", Settings_Theme_OptionRect);
-		MenuClass::MenuOption("Footer Text", Settings_Theme_FooterText);
-		MenuClass::MenuOption("Footer Background", Settings_Theme_FooterRect);
+		MenuClass::menu_option("Title Text", SubMenus::SETTINGS_THEME_TITLETEXT);
+		MenuClass::menu_option("Title Background", SubMenus::SETTINGS_THEME_TITLERECT);
+		MenuClass::menu_option("Submenu Bar Text", SubMenus::SETTINGS_THEME_SUBMENUBARTEXT);
+		MenuClass::menu_option("Submenu Bar Background", SubMenus::SETTINGS_THEME_SUBMENUBARRECT);
+		MenuClass::menu_option("Submenu Arrow", SubMenus::SETTINGS_THEME_SUBMENUARROW);
+		MenuClass::menu_option("Option Text", SubMenus::SETTINGS_THEME_OPTIONTEXT);
+		MenuClass::menu_option("Option Background", SubMenus::SETTINGS_THEME_OPTIONRECT);
+		MenuClass::menu_option("Footer Text", SubMenus::SETTINGS_THEME_FOOTERTEXT);
+		MenuClass::menu_option("Footer Background", SubMenus::SETTINGS_THEME_FOOTERRECT);
 
-		if (MenuClass::Option("Revert To Default"))
+		if (MenuClass::option("Revert To Default"))
 		{
 			MenuClass::Settings::TitleText = { 255, 255, 255, 255, 1 };
 			MenuClass::Settings::TitleBackground = { 3, 140, 252, 255 };
@@ -121,128 +100,129 @@ void PicoMenu()
 		}
 	}
 	break;
-	case Settings_Theme_TitleText:
+	case SubMenus::SETTINGS_THEME_TITLETEXT:
 	{
-		MenuClass::Title("Title Text");
+		MenuClass::title("Title Text");
 
-		MenuClass::Int("Red", MenuClass::Settings::TitleText.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::TitleText.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::TitleText.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::TitleText.a, 0, 255);
+		MenuClass::int_option("Red", MenuClass::Settings::TitleText.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::TitleText.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::TitleText.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::TitleText.a, 0, 255);
 	}
 	break;
-	case Settings_Theme_TitleRect:
+	case SubMenus::SETTINGS_THEME_TITLERECT:
 	{
-		MenuClass::Title("Title Background");
+		MenuClass::title("Title Background");
 
-		MenuClass::Int("Red", MenuClass::Settings::TitleBackground.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::TitleBackground.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::TitleBackground.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::TitleBackground.a, 0, 255);
+		MenuClass::int_option("Red", MenuClass::Settings::TitleBackground.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::TitleBackground.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::TitleBackground.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::TitleBackground.a, 0, 255);
 	}
 	break;
-	case Settings_Theme_SubmenuBarText:
+	case SubMenus::SETTINGS_THEME_SUBMENUBARTEXT:
 	{
-		MenuClass::Title("Submenu Bar Text");
+		MenuClass::title("Submenu Bar Text");
 
-		MenuClass::Int("Red", MenuClass::Settings::SubmenuBarText.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::SubmenuBarText.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::SubmenuBarText.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::SubmenuBarText.a, 0, 255);
+		MenuClass::int_option("Red", MenuClass::Settings::SubmenuBarText.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::SubmenuBarText.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::SubmenuBarText.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::SubmenuBarText.a, 0, 255);
 	}
 	break;
-	case Settings_Theme_SubmenuBarRect:
+	case SubMenus::SETTINGS_THEME_SUBMENUBARRECT:
 	{
-		MenuClass::Title("Submenu Bar Background");
+		MenuClass::title("Submenu Bar Background");
 
-		MenuClass::Int("Red", MenuClass::Settings::SubmenuBarBackground.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::SubmenuBarBackground.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::SubmenuBarBackground.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::SubmenuBarBackground.a, 0, 255);
+		MenuClass::int_option("Red", MenuClass::Settings::SubmenuBarBackground.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::SubmenuBarBackground.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::SubmenuBarBackground.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::SubmenuBarBackground.a, 0, 255);
 	}
 	break;
-	case Settings_Theme_SubmenuArrow:
+	case SubMenus::SETTINGS_THEME_SUBMENUARROW:
 	{
-		MenuClass::Title("Submenu Arrow");
+		MenuClass::title("Submenu Arrow");
 
-		MenuClass::Int("Red", MenuClass::Settings::SubmenuRect.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::SubmenuRect.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::SubmenuRect.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::SubmenuRect.a, 0, 255);
+		MenuClass::int_option("Red", MenuClass::Settings::SubmenuRect.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::SubmenuRect.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::SubmenuRect.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::SubmenuRect.a, 0, 255);
 	}
 	break;
-	case Settings_Theme_OptionText:
+	case SETTINGS_THEME_OPTIONTEXT:
 	{
-		MenuClass::Title("Option Text");
+		MenuClass::title("Option Text");
 
-		MenuClass::Option("Unselected:");
-		MenuClass::Int("Red", MenuClass::Settings::OptionUnselectedText.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::OptionUnselectedText.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::OptionUnselectedText.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::OptionUnselectedText.a, 0, 255);
+		MenuClass::option("Unselected:");
+		MenuClass::int_option("Red", MenuClass::Settings::OptionUnselectedText.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::OptionUnselectedText.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::OptionUnselectedText.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::OptionUnselectedText.a, 0, 255);
 
-		MenuClass::Option("Selected:");
-		MenuClass::Int("Red", MenuClass::Settings::OptionSelectedText.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::OptionSelectedText.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::OptionSelectedText.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::OptionSelectedText.a, 0, 255);
+		MenuClass::option("Selected:");
+		MenuClass::int_option("Red", MenuClass::Settings::OptionSelectedText.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::OptionSelectedText.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::OptionSelectedText.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::OptionSelectedText.a, 0, 255);
 	}
 	break;
-	case Settings_Theme_OptionRect:
+	case SubMenus::SETTINGS_THEME_OPTIONRECT:
 	{
-		MenuClass::Title("Option Background");
+		MenuClass::title("Option Background");
 
-		MenuClass::Option("Unselected:");
-		MenuClass::Int("Red", MenuClass::Settings::OptionUnselectedBackground.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::OptionUnselectedBackground.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::OptionUnselectedBackground.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::OptionUnselectedBackground.a, 0, 255);
+		MenuClass::option("Unselected:");
+		MenuClass::int_option("Red", MenuClass::Settings::OptionUnselectedBackground.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::OptionUnselectedBackground.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::OptionUnselectedBackground.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::OptionUnselectedBackground.a, 0, 255);
 
-		MenuClass::Option("Selected:");
-		MenuClass::Int("Red", MenuClass::Settings::OptionSelectedBackground.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::OptionSelectedBackground.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::OptionSelectedBackground.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::OptionSelectedBackground.a, 0, 255);
+		MenuClass::option("Selected:");
+		MenuClass::int_option("Red", MenuClass::Settings::OptionSelectedBackground.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::OptionSelectedBackground.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::OptionSelectedBackground.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::OptionSelectedBackground.a, 0, 255);
 	}
 	break;
-	case Settings_Theme_FooterText:
+	case SubMenus::SETTINGS_THEME_FOOTERTEXT:
 	{
-		MenuClass::Title("Footer Text");
+		MenuClass::title("Footer Text");
 
-		MenuClass::Option("Text:");
-		MenuClass::Int("Red", MenuClass::Settings::FooterText.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::FooterText.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::FooterText.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::FooterText.a, 0, 255);
+		MenuClass::option("Text:");
+		MenuClass::int_option("Red", MenuClass::Settings::FooterText.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::FooterText.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::FooterText.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::FooterText.a, 0, 255);
 
-		MenuClass::Option("Sprite:");
-		MenuClass::Int("Red", MenuClass::Settings::FooterSprite.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::FooterSprite.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::FooterSprite.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::FooterSprite.a, 0, 255);
+		MenuClass::option("Sprite:");
+		MenuClass::int_option("Red", MenuClass::Settings::FooterSprite.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::FooterSprite.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::FooterSprite.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::FooterSprite.a, 0, 255);
 	}
 	break;
-	case Settings_Theme_FooterRect:
+	case SubMenus::SETTINGS_THEME_FOOTERRECT:
 	{
-		MenuClass::Title("Footer Background");
+		MenuClass::title("Footer Background");
 
-		MenuClass::Int("Red", MenuClass::Settings::FooterBackground.r, 0, 255);
-		MenuClass::Int("Green", MenuClass::Settings::FooterBackground.g, 0, 255);
-		MenuClass::Int("Blue", MenuClass::Settings::FooterBackground.b, 0, 255);
-		MenuClass::Int("Alpha", MenuClass::Settings::FooterBackground.a, 0, 255);
+		MenuClass::int_option("Red", MenuClass::Settings::FooterBackground.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::FooterBackground.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::FooterBackground.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::FooterBackground.a, 0, 255);
 	}
 	break;
 	}
-	MenuClass::End();
+	MenuClass::end();
 	WAIT(0);
 }
 
 void ScriptMain() 
 {
-	srand(GetTickCount());
-	while (pico::g_Running)
+	srand(GetTickCount64());
+
+	while (pico::g_running)
 	{
-		MenuClass::Checks::Keys();
 		PicoMenu();
+		WAIT(0);
 	}
 }

@@ -72,7 +72,7 @@ public:
 	{
 		if (sizeof(T) > ArgSize )
 			throw "Argument has an invalid size";
-		else
+		else if (sizeof(T) < ArgSize)
 			// Ensure we don't have any stray data
 			*reinterpret_cast<uintptr_t*>(m_TempStack + ArgSize * m_nArgCount) = 0;
 

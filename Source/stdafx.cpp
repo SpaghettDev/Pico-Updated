@@ -1,3 +1,3 @@
 #include "stdafx.h"
 
-Hooking g_Hooking;
+Hooking g_hooking;

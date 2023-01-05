@@ -42,7 +42,7 @@ namespace MenuClass
 
 		extern SubMenus currentMenu;
 		extern SubMenus menuLevel;
-		extern int optionsArray[1000];
+		extern int optionsArray[1000]; // TODO: change this shit to a vector
 		extern SubMenus menusArray[1000];
 
 		extern float menuX;
@@ -95,4 +95,5 @@ namespace MenuClass
 	bool list_option(const char* option_name, std::vector<T> list, int& selected_option);
 
 	void end();
+	void reset_optioncount();
 }

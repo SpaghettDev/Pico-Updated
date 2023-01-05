@@ -17,6 +17,8 @@ static inline R invoke(UINT64 hash)
 	nativeInit(hash);
 	if constexpr (!std::is_same_v<R, void>)
 		return *reinterpret_cast<R*>(nativeCall());
+	else
+		nativeCall();
 }
 
 template <typename R, typename ...Args>

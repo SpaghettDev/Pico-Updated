@@ -11,6 +11,8 @@
 // Windows Header Files:
 #include <windows.h>
 #include <Mmsystem.h>
+
+
 #include <atomic>
 #include <chrono>
 #include <thread>
@@ -24,12 +26,14 @@
 #include <unordered_map>
 #include <algorithm>
 #include <functional>
+#include <filesystem>
+#include <regex>
+
+
 #include <psapi.h>
 #include <MinHook.h>
 #include <timeapi.h>
 #include <time.h>
-#include <filesystem>
-#include <regex>
 
 // Additional Header Files:
 #include "log.h"

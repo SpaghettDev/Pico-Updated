@@ -360,6 +360,11 @@ namespace MenuClass
 				Drawing::sprite("commonmenu", "shop_arrows_upanddown", Settings::menuX, ((Settings::optionCount + 1) * 0.035f + 0.140f), 0.020f, 0.035f, 180, Settings::FooterSprite.r, Settings::FooterSprite.g, Settings::FooterSprite.b, Settings::FooterSprite.a);
 		}
 	}
+	
+	void reset_optioncount()
+	{
+		Settings::optionCount = 0;
+	}
 
 	namespace Checks
 	{
@@ -414,8 +419,6 @@ namespace MenuClass
 					break;
 				}
 			}
-
-			Settings::optionCount = 0;
 		}
 	}
 

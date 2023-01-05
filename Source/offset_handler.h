@@ -16,41 +16,35 @@ public:
 	}
 
 	template <typename T>
-	void SetValue(std::vector<DWORD> Offsets, T Value)
+	void SetValue(std::vector<DWORD> Offsets, T value)
 	{
-		uintptr_t Adress = GetMultilayerPointer(reinterpret_cast<uintptr_t>(g_hooking.m_WorldPointer), Offsets);
-		if (Adress == NULL)
+		uintptr_t adress = GetMultilayerPointer(reinterpret_cast<uintptr_t>(g_hooking.m_WorldPointer), Offsets);
+		if (adress == NULL)
 			return;
 
-		*reinterpret_cast<T*>(Adress) = Value;
+		*reinterpret_cast<T*>(adress) = value;
 	}
 private:
-	uintptr_t GetMultilayerPointer(uintptr_t BaseAdress, std::vector<DWORD> Offsets)
+	uintptr_t GetMultilayerPointer(uintptr_t BaseAdress, std::vector<DWORD> offsets)
 	{
-		uintptr_t Pointer = *reinterpret_cast<uintptr_t*>(BaseAdress);
-		if (!Pointer)
+		uintptr_t pointer = *reinterpret_cast<uintptr_t*>(BaseAdress);
+		if (!pointer)
 			return NULL;
 
-		auto level = Offsets.size();
+		auto num_offsets = offsets.size();
 
-		for (auto i = 0; i < level; i++)
+		for (auto i = 0; i < num_offsets; i++)
 		{
-			if (i == level - 1)
-			{
-				Pointer += Offsets[i];
-				if (!Pointer)
-					return NULL;
-				return Pointer;
-			}
-			else
-			{
-				Pointer = *reinterpret_cast<uint64_t*>(Pointer + Offsets[i]);
-				if (!Pointer)
-					return NULL;
-			}
+			pointer = *reinterpret_cast<uint64_t*>(pointer + offsets[i]);
+			if (!pointer)
+				return NULL;
 		}
+		
+		pointer += offsets[num_offsets - 1];
+		if (!pointer)
+			return NULL;
 
-		return Pointer;
+		return pointer;
 	}
 };
 

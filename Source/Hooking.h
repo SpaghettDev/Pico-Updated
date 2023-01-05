@@ -135,4 +135,4 @@ struct MinHookKeepalive
 
 extern MinHookKeepalive g_minhook_keepalive;
 
-#include "net_game_event.hpp"
+#include "net_game_event.hpp" // I hate this but bitBuffer class needs g_hooking to function

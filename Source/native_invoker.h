@@ -3,15 +3,13 @@
 class scrNativeCallContext
 {
 protected:
-
-	void*		m_pReturn;
-	uint32_t	m_nArgCount;
-	void*		m_pArgs;
-	uint32_t	m_nDataCount;
-	alignas(uintptr_t)uint8_t m_vectorSpace[192];
+	void* m_pReturn;
+	uint32_t m_nArgCount;
+	void* m_pArgs;
+	uint32_t m_nDataCount;
+	alignas(uintptr_t) uint8_t m_vectorSpace[192];
 
 public:
-
 	template<typename T>
 	inline T GetArgument(int idx)
 	{
@@ -44,7 +42,6 @@ public:
 class NativeContext : public scrNativeCallContext
 {
 private:
-
 	// Configuration
 	enum
 	{
@@ -59,7 +56,6 @@ public:
 
 	inline NativeContext()
 	{
-
 		m_pArgs = &m_TempStack;
 		m_pReturn = &m_TempStack;		// It's okay to point both args and return at
 		// the same pointer. The game should handle this.
@@ -80,8 +76,8 @@ public:
 		m_nArgCount++;
 	}
 
-	inline void Reverse() {
-
+	inline void Reverse()
+	{
 		uintptr_t tempValues[MaxNativeParams]{};
 		uintptr_t* args = reinterpret_cast<uintptr_t*>(m_pArgs);
 
@@ -104,7 +100,7 @@ public:
 struct pass
 {
 	template<typename ...T>
-	pass( T... ) {}
+	pass(T...) {}
 };
 
 class NativeManagerContext : public NativeContext
@@ -112,8 +108,8 @@ class NativeManagerContext : public NativeContext
 public:
 
 	NativeManagerContext()
-		: NativeContext() {
-	}
+		: NativeContext()
+	{ }
 
 	void Reset()
 	{

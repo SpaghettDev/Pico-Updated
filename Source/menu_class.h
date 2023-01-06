@@ -42,8 +42,11 @@ namespace MenuClass
 
 		extern SubMenus currentMenu;
 		extern SubMenus menuLevel;
-		extern int optionsArray[1000]; // TODO: change this shit to a vector
-		extern SubMenus menusArray[1000];
+		extern SubMenus previousMenuLevel;
+		extern std::array<int, 1000> optionsArray;
+		extern int previousOption;
+		extern std::array<SubMenus, 1000> menusArray;
+		extern SubMenus previousMenu;
 
 		extern float menuX;
 		extern float menuWidth;
@@ -75,12 +78,13 @@ namespace MenuClass
 	{
 		void MoveMenu(SubMenus menu);
 		void BackMenu();
+		void OpenMenu();
 		void CloseMenu();
 	}
 
 	namespace Checks 
 	{
-		void on_change(int key_code);
+		void keys();
 	}
 
 	void title(const char* title);

@@ -27,7 +27,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, PVOID)
 				while (pico::g_running)
 					std::this_thread::sleep_for(500ms);
 
-				Hotkeys::cleanup();
+				Hotkeys::cleanup(); // TODO: these don't get run at all?
 				Hooking::cleanup(g_hmodule);
 			}
 			catch (std::exception const& ex)

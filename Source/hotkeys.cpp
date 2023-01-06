@@ -3,6 +3,8 @@
 
 namespace Hotkeys
 {
+	std::array<bool, 256> keys;
+
 	void init()
 	{
 		pico::g_og_wndproc = WNDPROC(SetWindowLongPtrW(pico::g_hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Hotkeys::wndproc)));
@@ -15,6 +17,11 @@ namespace Hotkeys
 		LOG_MSG("Removed WNDPROC hook");
 	}
 
+	bool get_key(int key_code)
+	{
+		return keys[key_code];
+	}
+
 	LRESULT wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
 		static void* exceptionAddress;
@@ -22,8 +29,12 @@ namespace Hotkeys
 		__try
 		{
 			if (pico::g_running)
-				if (msg == WM_KEYUP)
-					MenuClass::Checks::on_change(wparam);
+			{
+				if (msg == WM_KEYDOWN)
+					Hotkeys::keys[wparam] = true;
+				else if (msg == WM_KEYUP)
+					Hotkeys::keys[wparam] = false;
+			}
 
 			return CallWindowProcW(pico::g_og_wndproc, hwnd, msg, wparam, lparam);
 		}

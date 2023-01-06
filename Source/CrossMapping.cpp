@@ -2,7 +2,7 @@
 #include "log.h"
 
 /*##################################################################################################*/
-::std::unordered_map<uint64_t, uint64_t> nativeHashMap;
+std::unordered_map<uint64_t, uint64_t> nativeHashMap;
 
 uint64_t __HASHMAPDATA[] = {
     0x846aa8e7d55ee5b6, 0x4b4e19d3ae9be33a,

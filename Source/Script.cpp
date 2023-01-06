@@ -223,6 +223,7 @@ void ScriptMain()
 	while (pico::g_running)
 	{
 		PicoMenu();
+		MenuClass::Checks::keys();
 		MenuClass::reset_optioncount();
 	}
 }

@@ -88,7 +88,7 @@ void Log::log(LogLevel type, const char* file_name, int line, const char* fmt, .
 	);
 
 	va_start(va_alist, fmt);
-	_vsnprintf_s(chParameters, sizeof(chParameters), fmt, va_alist);
+	vsnprintf_s(chParameters, sizeof(chParameters), fmt, va_alist);
 	va_end(va_alist);
 	sprintf_s(chLogBuff, szTimestamp, chParameters);
 
@@ -103,7 +103,7 @@ void Log::log(LogLevel type, const char* file_name, int line, const char* fmt, .
 	va_list args{};
 
 	va_start(args, fmt);
-	_vsnprintf(buffer, sizeof(buffer), fmt, args) + 1;
+	vsnprintf_s(buffer, sizeof(buffer), fmt, args);
 	printf(buffer);
 	printf("\n");
 	va_end(args);

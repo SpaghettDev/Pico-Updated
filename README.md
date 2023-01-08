@@ -5,7 +5,7 @@ Original Uknowncheats post is [here][pico].
 <details>
 <summary>Image of Menu</summary>
 <br>
-<img src="https://raw.githubusercontent.com/SpaghettDev/Pico-Updated/master/assets/Pico.png" width="720"/>
+<img src="https://raw.githubusercontent.com/SpaghettDev/Pico-Updated/master/assets/Pico.png" width="420"/>
 </details>
 
 Was bored so decided to take on the challenge of updating a menu to work on the latest patch.

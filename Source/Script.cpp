@@ -17,7 +17,7 @@ void PicoMenu()
 		if (MenuClass::option("Spawn Adder"))
 			vehicle::spawn_vehicle("adder");
 
-		MenuClass::menu_option("Test Menu", TEST);
+		MenuClass::menu_option("Test Menu", SubMenus::TEST);
 
 		MenuClass::int_option("Test Int", TestInt, 0, 500);
 		MenuClass::int_option("Test Int Custom Step", TestInt, 0, 500, 100);

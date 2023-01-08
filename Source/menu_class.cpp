@@ -45,8 +45,8 @@ namespace MenuClass
 		std::array<SubMenus, 1000> menusArray;
 
 		RGBAF TitleText{ 255, 255, 255, 255, 1 };
-		RGBA TitleBackground{ 3, 140, 252, 255 };
-		RGBAF SubmenuBarText{ 255, 255, 255, 255, 4 };
+		RGBA TitleBackground{ 255, 255, 255, 255 };
+		RGBAF SubmenuBarText{ 255, 255, 255, 255, 6 };
 		RGBA SubmenuBarBackground{ 0, 0, 0, 190 };
 		RGBA SubmenuRect{ 3, 140, 252, 255 };
 		RGBAF OptionUnselectedText{ 255, 255, 255, 255, 4 };
@@ -72,16 +72,16 @@ namespace MenuClass
 	{
 		// Title Bar
 		Drawing::text("Pico", Settings::TitleText, { Settings::menuX, 0.095f - 0.035f }, { 0.85f, 0.85f }, true, false);
-		Drawing::rect(Settings::TitleBackground, { Settings::menuX, 0.1175f - 0.035f }, { Settings::menuWidth, 0.085f });
+		Drawing::sprite("commonmenu", "interaction_bgd", Settings::menuX, 0.1175f - 0.035f, Settings::menuWidth, 0.085f, 180, Settings::TitleBackground.r, Settings::TitleBackground.g, Settings::TitleBackground.b, Settings::TitleBackground.a);
 
 		// Submenu Bar
 		Drawing::rect(Settings::SubmenuBarBackground, { Settings::menuX, 0.1415f }, { Settings::menuWidth, 0.035f });
+		Drawing::sprite("commonmenu", "gradient_bgd", Settings::menuX, 0.1415f, Settings::menuWidth, 0.035f, 180, Settings::SubmenuBarBackground.r, Settings::SubmenuBarBackground.g, Settings::SubmenuBarBackground.b, Settings::SubmenuBarBackground.a);
 		char BarText[64]{};
 		strncpy_s(BarText, sizeof(BarText), title, 64);
 		std::transform(std::begin(BarText), std::end(BarText), std::begin(BarText), [](char c) { return static_cast<char>(toupper(c)); });
-		Drawing::text(BarText, Settings::SubmenuBarText, { Settings::menuX, 0.125f }, { 0.5f, 0.5f }, true, false);
+		Drawing::text(BarText, Settings::SubmenuBarText, { Settings::menuX - 0.1f, 0.125f }, { 0.5f, 0.5f }, false, false);
 
-		// Disable Controls
 		HUD::HIDE_HELP_TEXT_THIS_FRAME();
 		CAM::SET_CINEMATIC_BUTTON_ACTIVE(false);
 
@@ -100,6 +100,7 @@ namespace MenuClass
 			ControllerInputs::INPUT_VEH_HEADLIGHT
 		};
 
+		// Disable Controls
 		for (const auto& control : controls)
 			PAD::DISABLE_CONTROL_ACTION(ControlTypes::FRONTEND_CONTROL, control, true);
 	}
@@ -335,7 +336,6 @@ namespace MenuClass
 	{
 		if (Settings::optionCount >= Settings::maxVisOptions)
 		{
-			Drawing::text("PAID", Settings::FooterText, { Settings::menuX - (Settings::menuWidth / 2) + 0.005f, (Settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 			Drawing::text((std::to_string(Settings::currentOption) + "/" + std::to_string(Settings::optionCount)).c_str(), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 			Drawing::rect(Settings::FooterBackground, { Settings::menuX, (Settings::maxVisOptions + 1) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 
@@ -348,7 +348,6 @@ namespace MenuClass
 		}
 		else if (Settings::optionCount > 0)
 		{
-			Drawing::text("PAID", Settings::FooterText, { Settings::menuX - (Settings::menuWidth / 2) + 0.005f, (Settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 			Drawing::text((std::to_string(Settings::currentOption) + "/" + std::to_string(Settings::optionCount)).c_str(), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 			Drawing::rect(Settings::FooterBackground, { Settings::menuX, (Settings::optionCount + 1) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 

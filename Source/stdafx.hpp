@@ -37,22 +37,22 @@
 #include <time.h>
 
 // Additional Header Files:
-#include "log.h"
-#include "signature_scanner.h"
-#include "offset_handler.h"
-#include "types.h"
-#include "enums.h"
-#include "crossmapping.h"
-#include "native_invoker.h"
-#include "native_caller.h"
-#include "natives.h"
-#include "hooking.h"
-#include "types.h"
-#include "hotkeys.h"
+#include "log.hpp"
+#include "signature_scanner.hpp"
+#include "offset_handler.hpp"
+#include "types.hpp"
+#include "enums.hpp"
+#include "crossmapping.hpp"
+#include "native_invoker.hpp"
+#include "native_caller.hpp"
+#include "natives.hpp"
+#include "hooking.hpp"
+#include "types.hpp"
+#include "input_hook.hpp"
 
 // Menu Files:
-#include "menu_class.h"
-#include "script.h"
+#include "menu_class.hpp"
+#include "script.hpp"
 
 #include <locale>
 #include <codecvt>

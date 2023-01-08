@@ -40,6 +40,7 @@ private:
 
 public:
 	static std::vector<LPVOID> m_Hooks;
+
 	static eGameState* m_GameState;
 	static GetNumberOfEvents* m_GetNumberOfEvents;
 	static GetLabelText* m_GetLabelText;

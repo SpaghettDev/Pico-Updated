@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "stdafx.hpp"
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, PVOID)
 {
@@ -20,14 +20,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, PVOID)
 			{
 				Log::init(g_hmodule);
 				Hooking::init(g_hmodule);
-				Hotkeys::init();
+				InputHook::init();
 				LOG_MSG("Pico Menu Initialized");
 
-				pico::g_running = true;
-				while (pico::g_running)
+				g_running = true;
+				while (g_running)
 					std::this_thread::sleep_for(500ms);
 
-				Hotkeys::cleanup(); // TODO: these don't get run at all?
+				InputHook::cleanup();
 				Hooking::cleanup(g_hmodule);
 			}
 			catch (std::exception const& ex)

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "stdafx.hpp"
 #include <time.h>
 #include <cstdio>
 
@@ -10,10 +10,12 @@ static char g_debug_log_file[MAX_PATH];
 
 namespace
 {
-	std::map<LogLevel, const char*> level_to_str = {
+	std::map<LogLevel, const char*> level_to_str
+	{
 		{ LogLevel::MESSAGE, "MESSAGE" },
 		{ LogLevel::DEBUG, "DEBUG" },
-		{ LogLevel::ERROR_, "ERROR" },
+#undef ERROR
+		{ LogLevel::ERROR, "ERROR" },
 		{ LogLevel::FATAL, "FATAL" }
 	};
 }
@@ -39,6 +41,7 @@ void Log::init(HMODULE hModule)
 	sprintf_s(log_buffer, timestamp, "Initialize: Pico Base");
 
 	{
+#pragma warning(disable: 4996) // getenv is apparently unsafe
 		std::string temp = std::format(R"({}\Pico\)", std::getenv("appdata"));
 		g_log_file_path = temp.data();
 	}
@@ -74,13 +77,16 @@ void Log::log(LogLevel type, const char* file_name, int line, const char* fmt, .
 
 	std::smatch sm;
 
-	if (std::regex_search(actual_file_name, sm, std::regex(R"(\\(\w+)\.(cpp|h|hpp))")))
+	if (std::regex_search(actual_file_name, sm, std::regex(R"(\\(\w+)\.(cpp|hpp|h))")))
 	{
 		actual_file_name = sm[0];
 		actual_file_name = actual_file_name.erase(0, 1);
 	}
 	else
-		actual_file_name = "uknown";
+	{
+		if (!(actual_file_name.ends_with(".cpp") || actual_file_name.ends_with(".hpp") || actual_file_name.ends_with(".h")))
+			actual_file_name = "uknown";
+	}
 
 	localtime_s(&current_tm, &current_time);
 	sprintf_s(szTimestamp, "[%02d:%02d:%02d | %s:%i | %s] %%s\n",

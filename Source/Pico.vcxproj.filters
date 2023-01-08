@@ -20,49 +20,49 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="log.h">
+    <ClInclude Include="log.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="stdafx.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="types.h">
+    <ClInclude Include="types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="native_caller.h">
+    <ClInclude Include="native_caller.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="signature_scanner.h">
+    <ClInclude Include="signature_scanner.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="native_invoker.h">
+    <ClInclude Include="native_invoker.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="crossmapping.h">
+    <ClInclude Include="crossmapping.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="script.h">
+    <ClInclude Include="script.hpp">
       <Filter>Menu</Filter>
     </ClInclude>
-    <ClInclude Include="menu_class.h">
+    <ClInclude Include="menu_class.hpp">
       <Filter>Menu</Filter>
     </ClInclude>
-    <ClInclude Include="enums.h">
+    <ClInclude Include="enums.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hooking.h">
+    <ClInclude Include="hooking.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="natives.h">
+    <ClInclude Include="natives.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="script_global.h">
+    <ClInclude Include="script_global.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="offset_handler.h">
+    <ClInclude Include="offset_handler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hotkeys.h">
+    <ClInclude Include="input_hook.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils.hpp">
@@ -106,7 +106,7 @@
     <ClCompile Include="hooking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hotkeys.cpp">
+    <ClCompile Include="input_hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="joaat.hpp">
@@ -114,7 +114,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="NativeSpoofer.asm">
+    <MASM Include="native_spoofer.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

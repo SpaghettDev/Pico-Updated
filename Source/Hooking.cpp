@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "stdafx.hpp"
 
 HANDLE MainFiber;
 DWORD WakeTime;
@@ -39,7 +39,6 @@ void Hooking::init(HMODULE hmoduleDLL)
 	find_patterns();
 	while (*g_hooking.m_GameState != eGameState::Playing)
 		Sleep(200);
-	CrossMapping::init_native_map();
 	if (!initialize_hooks())
 		cleanup(hmoduleDLL);
 }
@@ -55,6 +54,7 @@ bool Hooking::initialize_hooks()
 	return true;
 }
 
+#pragma region hooks
 GetNumberOfEvents* m_OriginalGetNumberOfEvents = nullptr;
 std::int32_t GetNumberOfEventsHook(std::int32_t eventGroup)
 {
@@ -189,7 +189,7 @@ void ReceivedEventHook( // skidded from YimMenu, because this Network stuff scar
 
 bool Hooking::hook_natives()
 {
-#define IS_HOOK_UNSUCCESSFULLY_INSTALLED(status, hook) ((status != MH_OK && status != MH_ERROR_ALREADY_CREATED) || MH_EnableHook(Hooking::hook) != MH_OK)
+#define IS_HOOK_UNSUCCESSFULLY_INSTALLED(status, hook) ((status != MH_STATUS::MH_OK && status != MH_STATUS::MH_ERROR_ALREADY_CREATED) || MH_EnableHook(Hooking::hook) != MH_STATUS::MH_OK)
 
 	MH_STATUS status = MH_CreateHook(Hooking::m_GetNumberOfEvents, GetNumberOfEventsHook, reinterpret_cast<void**>(&m_OriginalGetNumberOfEvents));
 	if (IS_HOOK_UNSUCCESSFULLY_INSTALLED(status, m_GetNumberOfEvents))
@@ -211,6 +211,7 @@ bool Hooking::hook_natives()
 
 	return true;
 }
+#pragma endregion
 
 void __stdcall ScriptFunction(LPVOID lpParameter)
 {
@@ -241,6 +242,8 @@ void Hooking::on_tick_init()
 
 void Hooking::find_patterns()
 {
+	using namespace SignatureScanner;
+
 	m_GameState = "83 3D ? ? ? ? ? 75 17 8B 43 20 25"_Scan.add(2).rip().as<decltype(Hooking::m_GameState)>(); LOG_MSG("Found: GS");
 	m_GetNumberOfEvents = "48 83 EC 28 33 D2 85"_Scan.as<decltype(Hooking::m_GetNumberOfEvents)>(); LOG_MSG("Found: GNOE");
 	m_GetLabelText = "75 ? E8 ? ? ? ? 8B 0D ? ? ? ? 65 48 8B 04 25 ? ? ? ? BA ? ? ? ? 48 8B 04 C8 8B 0C 02 D1 E9"_Scan.sub(19).as<decltype(Hooking::m_GetLabelText)>(); LOG_MSG("Found: GLT");
@@ -272,7 +275,7 @@ void Hooking::find_patterns()
 
 static Hooking::NativeHandler _Handler(uint64_t origHash)
 {
-	uint64_t NewHash = CrossMapping::MapNative(origHash);
+	uint64_t NewHash = CrossMapping::map_native(origHash);
 	if (NewHash == 0)
 		return nullptr;
 

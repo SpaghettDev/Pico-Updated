@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "stdafx.hpp"
 
 extern "C" void	_call_asm(void* context, void* function, void* ret);
 static NativeManagerContext g_context;

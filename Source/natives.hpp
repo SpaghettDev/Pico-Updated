@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "stdafx.hpp"
 
 // Generated on 19/09/2022, 12:12:31
 // https://nativedb.spyral.dev

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "stdafx.hpp"
 #include "utils.hpp"
 
 namespace MenuClass
@@ -41,11 +41,8 @@ namespace MenuClass
 		int optionCount = 0;
 		SubMenus currentMenu;
 		SubMenus menuLevel = SubMenus::NOTHING;
-		SubMenus previousMenuLevel;
 		std::array<int, 1000> optionsArray;
-		int previousOption;
 		std::array<SubMenus, 1000> menusArray;
-		SubMenus previousMenu;
 
 		RGBAF TitleText{ 255, 255, 255, 255, 1 };
 		RGBA TitleBackground{ 3, 140, 252, 255 };
@@ -80,7 +77,7 @@ namespace MenuClass
 		// Submenu Bar
 		Drawing::rect(Settings::SubmenuBarBackground, { Settings::menuX, 0.1415f }, { Settings::menuWidth, 0.035f });
 		char BarText[64]{};
-		std::strncpy(&BarText[0], title, sizeof(BarText) - 1);
+		strncpy_s(BarText, sizeof(BarText), title, 64);
 		std::transform(std::begin(BarText), std::end(BarText), std::begin(BarText), [](char c) { return static_cast<char>(toupper(c)); });
 		Drawing::text(BarText, Settings::SubmenuBarText, { Settings::menuX, 0.125f }, { 0.5f, 0.5f }, true, false);
 
@@ -379,22 +376,22 @@ namespace MenuClass
 
 			if ((GetTickCount64() - Settings::keyPressPreviousTick) > Settings::keyPressDelay)
 			{
-				if (Hotkeys::get_key(Settings::openKey))
+				if (InputHook::get_key(Settings::openKey))
 				{
 					Settings::menuLevel == SubMenus::NOTHING
-						? MenuLevelHandler::OpenMenu()
+						? MenuLevelHandler::MoveMenu(SubMenus::MAIN)
 						: MenuLevelHandler::CloseMenu();
 
 					Settings::keyPressPreviousTick = GetTickCount64();
 				}
-				else if (Hotkeys::get_key(Settings::backKey))
+				else if (InputHook::get_key(Settings::backKey))
 				{
 					if (Settings::menuLevel > SubMenus::NOTHING)
 						MenuLevelHandler::BackMenu();
 
 					Settings::keyPressPreviousTick = GetTickCount64();
 				}
-				else if (Hotkeys::get_key(Settings::upKey))
+				else if (InputHook::get_key(Settings::upKey))
 				{
 					Settings::currentOption > 1
 						? Settings::currentOption--
@@ -402,7 +399,7 @@ namespace MenuClass
 
 					Settings::keyPressPreviousTick = GetTickCount64();
 				}
-				else if (Hotkeys::get_key(Settings::downKey))
+				else if (InputHook::get_key(Settings::downKey))
 				{
 					Settings::currentOption < Settings::optionCount
 						? Settings::currentOption++
@@ -411,9 +408,9 @@ namespace MenuClass
 					Settings::keyPressPreviousTick = GetTickCount64();
 				}
 
-				Settings::leftPressed = Hotkeys::get_key(Settings::leftKey);
-				Settings::rightPressed = Hotkeys::get_key(Settings::rightKey);
-				Settings::selectPressed = Hotkeys::get_key(Settings::selectKey);
+				Settings::leftPressed = InputHook::get_key(Settings::leftKey);
+				Settings::rightPressed = InputHook::get_key(Settings::rightKey);
+				Settings::selectPressed = InputHook::get_key(Settings::selectKey);
 				Settings::keyPressPreviousTick = (Settings::leftPressed || Settings::rightPressed || Settings::selectPressed)
 					? GetTickCount64()
 					: Settings::keyPressPreviousTick;
@@ -439,26 +436,8 @@ namespace MenuClass
 			Settings::currentOption = Settings::optionsArray[Settings::menuLevel];
 		}
 
-		void OpenMenu()
-		{
-			static bool first_open = true;
-
-			Settings::menuLevel = first_open ? static_cast<SubMenus>(static_cast<int>(Settings::menuLevel) + 1) : Settings::previousMenuLevel;
-			Settings::currentMenu = first_open ? SubMenus::MAIN : Settings::previousMenu;
-			Settings::currentOption = first_open ? 1 : Settings::previousOption;
-
-			Settings::menusArray[Settings::menuLevel] = Settings::currentMenu;
-			Settings::optionsArray[Settings::menuLevel] = Settings::currentOption;
-
-			first_open = false;
-		}
-
 		void CloseMenu()
 		{
-			Settings::previousMenuLevel = Settings::menuLevel;
-			Settings::previousMenu = Settings::menusArray[Settings::menuLevel];
-			Settings::previousOption = Settings::currentOption;
-
 			Settings::menuLevel = SubMenus::NOTHING;
 			Settings::currentMenu = Settings::menusArray[Settings::menuLevel];
 			Settings::currentOption = Settings::optionsArray[Settings::menuLevel];

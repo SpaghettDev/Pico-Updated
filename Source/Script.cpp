@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "stdafx.hpp"
 #include "vehicle.hpp"
 
 int TestInt = 420;
@@ -218,7 +218,7 @@ void PicoMenu()
 
 void ScriptMain() 
 {
-	srand(GetTickCount64());
+	srand(GetTickCount());
 
 	while (pico::g_running)
 	{

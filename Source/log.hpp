@@ -4,7 +4,8 @@ enum LogLevel
 {
 	MESSAGE,
 	DEBUG,
-	ERROR_,
+#undef ERROR
+	ERROR,
 	FATAL
 };
 
@@ -19,5 +20,5 @@ public:
 
 #define LOG_MSG(msg, ...) Log::log(LogLevel::MESSAGE, __FILE__, __LINE__, msg, ##__VA_ARGS__)
 #define LOG_DEBUG(msg, ...) Log::log(LogLevel::DEBUG, __FILE__, __LINE__, msg, ##__VA_ARGS__)
-#define LOG_ERR(msg, ...) Log::log(LogLevel::ERROR_, __FILE__, __LINE__, msg, ##__VA_ARGS__)
+#define LOG_ERR(msg, ...) Log::log(LogLevel::ERROR, __FILE__, __LINE__, msg, ##__VA_ARGS__)
 #define LOG_FATAL(msg, ...)  Log::log(LogLevel::FATAL, __FILE__, __LINE__, msg, ##__VA_ARGS__)

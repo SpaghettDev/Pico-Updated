@@ -1,9 +1,8 @@
 #pragma once
-
-#include "stdafx.h"
+#include "stdafx.hpp"
 #include <span>
 
-namespace rage
+namespace rage // from YimMenu
 {
     using joaat_t = std::uint32_t;
 

@@ -55,7 +55,9 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>$(ProjectName)</TargetName>
     <TargetExt>.dll</TargetExt>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)MinHook\lib</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnabled>false</VcpkgEnabled>
@@ -79,47 +81,55 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;WIN32_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FunctionLevelLinking>
+      </FunctionLevelLinking>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;WIN32_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)MinHook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeaderFile>stdafx.hpp</PrecompiledHeaderFile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <UseFullPaths>false</UseFullPaths>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)MinHook\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <OptimizeReferences>
+      </OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(ProjectDir)MinHook\lib\minhook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CNetGamePlayer.hpp" />
-    <ClInclude Include="crossmapping.h" />
-    <ClInclude Include="enums.h" />
-    <ClInclude Include="hooking.h" />
-    <ClInclude Include="hotkeys.h" />
-    <ClInclude Include="log.h" />
+    <ClInclude Include="crossmapping.hpp" />
+    <ClInclude Include="enums.hpp" />
+    <ClInclude Include="hooking.hpp" />
+    <ClInclude Include="input_hook.hpp" />
+    <ClInclude Include="log.hpp" />
     <ClInclude Include="misc.hpp" />
     <ClInclude Include="net_game_event.hpp" />
-    <ClInclude Include="offset_handler.h" />
-    <ClInclude Include="script_global.h" />
-    <ClInclude Include="signature_scanner.h" />
-    <ClInclude Include="menu_class.h" />
-    <ClInclude Include="native_caller.h" />
-    <ClInclude Include="native_invoker.h" />
-    <ClInclude Include="natives.h" />
-    <ClInclude Include="script.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="types.h" />
+    <ClInclude Include="offset_handler.hpp" />
+    <ClInclude Include="script_global.hpp" />
+    <ClInclude Include="signature_scanner.hpp" />
+    <ClInclude Include="menu_class.hpp" />
+    <ClInclude Include="native_caller.hpp" />
+    <ClInclude Include="native_invoker.hpp" />
+    <ClInclude Include="natives.hpp" />
+    <ClInclude Include="script.hpp" />
+    <ClInclude Include="stdafx.hpp" />
+    <ClInclude Include="types.hpp" />
     <ClInclude Include="utils.hpp" />
     <ClInclude Include="vehicle.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crossmapping.cpp" />
-    <ClCompile Include="hotkeys.cpp" />
+    <ClCompile Include="input_hook.cpp" />
     <ClCompile Include="joaat.hpp" />
     <ClCompile Include="main.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -134,15 +144,18 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="menu_class.cpp" />
-    <ClCompile Include="native_invoker.cpp" />
+    <ClCompile Include="native_invoker.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.hpp</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="script.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.hpp</PrecompiledHeaderFile>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="NativeSpoofer.asm" />
+    <MASM Include="native_spoofer.asm" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

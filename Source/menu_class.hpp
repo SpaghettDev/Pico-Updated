@@ -21,7 +21,7 @@ enum SubMenus //Add Sub Menus in here
 	SETTINGS_THEME_FOOTERRECT
 };
 
-namespace MenuClass 
+namespace MenuClass
 {
 	namespace Drawing 
 	{
@@ -42,11 +42,8 @@ namespace MenuClass
 
 		extern SubMenus currentMenu;
 		extern SubMenus menuLevel;
-		extern SubMenus previousMenuLevel;
 		extern std::array<int, 1000> optionsArray;
-		extern int previousOption;
 		extern std::array<SubMenus, 1000> menusArray;
-		extern SubMenus previousMenu;
 
 		extern float menuX;
 		extern float menuWidth;
@@ -78,7 +75,6 @@ namespace MenuClass
 	{
 		void MoveMenu(SubMenus menu);
 		void BackMenu();
-		void OpenMenu();
 		void CloseMenu();
 	}
 

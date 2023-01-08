@@ -1,9 +1,10 @@
 #pragma once
-#include "native_invoker.h"
-#include "enums.h"
-#include "hooking.h"
-#include "stdafx.h"
+#include "native_invoker.hpp"
+#include "enums.hpp"
+#include "hooking.hpp"
+#include "stdafx.hpp"
 #include <valarray>
+#include <variant>
 
 class Module
 {
@@ -13,7 +14,7 @@ private:
 	DWORD m_size;
 public:
 	template<typename TReturn, typename TOffset>
-	TReturn* getRva(TOffset rva)
+	TReturn* get_rva(TOffset rva)
 	{
 		return reinterpret_cast<TReturn*>(m_begin + rva);
 	}
@@ -21,11 +22,11 @@ public:
 	explicit Module(void* module = GetModuleHandle(nullptr))
 		: m_begin(reinterpret_cast<uintptr_t>(module)), m_end(0)
 	{
-		const auto dosHeader = getRva<IMAGE_DOS_HEADER>(0);
-		const auto ntHeader = getRva<IMAGE_NT_HEADERS>(dosHeader->e_lfanew);
+		const auto dos_header = get_rva<IMAGE_DOS_HEADER>(0);
+		const auto nt_header = get_rva<IMAGE_NT_HEADERS>(dos_header->e_lfanew);
 
-		m_end = m_begin + ntHeader->OptionalHeader.SizeOfCode;
-		m_size = ntHeader->OptionalHeader.SizeOfImage;
+		m_end = m_begin + nt_header->OptionalHeader.SizeOfCode;
+		m_size = nt_header->OptionalHeader.SizeOfImage;
 	}
 
 	uintptr_t base() const { return m_begin; }
@@ -606,53 +607,61 @@ namespace SignatureScanner
 		if (!ptr)
 			return NULL;
 
-		auto level = offsets.size();
+		auto offsets_size = offsets.size();
 
-		for (auto i = 0; i < level; i++) {
-			if (i == level - 1)
-			{
-				ptr += offsets[i];
-				if (!ptr)
-					return NULL;
-				return ptr;
-			}
-			else
-			{
-				ptr = *(uint64_t*)(ptr + offsets[i]);
-				if (!ptr)
-					return NULL;
-			}
+		for (auto i = 0; i < offsets_size; i++)
+		{
+			ptr = *reinterpret_cast<uint64_t*>(ptr + offsets[i]);
+			if (!ptr)
+				return NULL;
 		}
+		
+		ptr += offsets[offsets_size - 1];
+		if (!ptr)
+			return NULL;
 
 		return ptr;
 	}
 
 	template <typename T>
-	T get_value(uintptr_t Addr, std::vector<DWORD> offsets)
+	T get_value(uintptr_t addr, std::vector<DWORD> offsets)
 	{
-		if (Addr == NULL) return NULL;
-		uintptr_t ML = get_multilayer_pointer(Addr, offsets);
+		if (addr == NULL) return NULL;
+		uintptr_t ML = get_multilayer_pointer(addr, offsets);
 		if (ML == NULL) return NULL;
 		return *reinterpret_cast<T*>(ML);
 	}
 
 	template <typename T>
-	void set_value(uintptr_t Addr, std::vector<DWORD> offsets, T value)
+	void set_value(uintptr_t addr, std::vector<DWORD> offsets, T value)
 	{
-		uintptr_t ML = get_multilayer_pointer(Addr, offsets);
+		uintptr_t ML = get_multilayer_pointer(addr, offsets);
 		if (ML == NULL)
 			return;
 
 		*reinterpret_cast<T*>(ML) = value;
 	}
-}
 
-inline SignatureScanner::handle operator""_Scan(const char* string, std::size_t)
-{
-	if (auto handle = SignatureScanner::module::named(nullptr).scan(string))
-		return handle;
+	inline SignatureScanner::handle operator""_Scan(const char* string, std::size_t)
+	{
+		if (auto handle = SignatureScanner::module::named(nullptr).scan(string))
+			return handle;
 
-	LOG_ERR("Pattern Fail! - %s", string);
+		return nullptr;
+	}
 
-	return nullptr;
+	namespace patterns
+	{
+		inline SignatureScanner::handle scan(const char* name, std::string pattern) // TODO: fix this
+		{
+			if (auto handle = SignatureScanner::module::named(nullptr).scan(pattern.c_str()))
+			{
+				LOG_MSG("Found %s", name);
+				return handle;
+			}
+
+			LOG_ERR("Failed to find %s", name);
+			return nullptr;
+		}
+	}
 }

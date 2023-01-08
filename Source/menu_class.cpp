@@ -81,7 +81,6 @@ namespace MenuClass
 		std::transform(std::begin(BarText), std::end(BarText), std::begin(BarText), [](char c) { return static_cast<char>(toupper(c)); });
 		Drawing::text(BarText, Settings::SubmenuBarText, { Settings::menuX, 0.125f }, { 0.5f, 0.5f }, true, false);
 
-		// Disable Controls
 		HUD::HIDE_HELP_TEXT_THIS_FRAME();
 		CAM::SET_CINEMATIC_BUTTON_ACTIVE(false);
 
@@ -100,6 +99,7 @@ namespace MenuClass
 			ControllerInputs::INPUT_VEH_HEADLIGHT
 		};
 
+		// Disable Controls
 		for (const auto& control : controls)
 			PAD::DISABLE_CONTROL_ACTION(ControlTypes::FRONTEND_CONTROL, control, true);
 	}

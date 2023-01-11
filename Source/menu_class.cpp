@@ -48,7 +48,10 @@ namespace MenuClass
 		RGBA TitleBackground{ 255, 255, 255, 255 };
 		RGBAF SubmenuBarText{ 255, 255, 255, 255, 6 };
 		RGBA SubmenuBarBackground{ 0, 0, 0, 190 };
-		RGBA SubmenuRect{ 3, 140, 252, 255 };
+		RGBA BoolButton{ 3, 140, 252, 255 };
+		RGBA BoolButtonUnselected{ 102, 96, 96, 255 };
+		RGBA SubmenuArrow{ 255, 255, 255, 255 };
+		RGBA SubmenuUnselectedArrow{ 0, 0, 0, 255 };
 		RGBAF OptionUnselectedText{ 255, 255, 255, 255, 4 };
 		RGBAF OptionSelectedText{ 10, 10, 10, 255, 4 };
 		RGBA OptionUnselectedBackground{ 0, 0, 0, 160 };
@@ -105,7 +108,7 @@ namespace MenuClass
 			PAD::DISABLE_CONTROL_ACTION(ControlTypes::FRONTEND_CONTROL, control, true);
 	}
 
-	bool option(const char* option)
+	bool option(const char* option, bool return_on_hover)
 	{
 		Settings::optionCount++;
 		bool onThis = Settings::currentOption == Settings::optionCount;
@@ -113,8 +116,8 @@ namespace MenuClass
 		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
 		{
 			onThis
-				? Drawing::text(option, Settings::OptionSelectedText, { Settings::menuX - 0.1f, (Settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false)
-				: Drawing::text(option, Settings::OptionUnselectedText, { Settings::menuX - 0.1f, (Settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+				? Drawing::text(option, Settings::OptionSelectedText, { Settings::menuX  - 0.1f, (Settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false)
+				: Drawing::text(option, Settings::OptionUnselectedText, { Settings::menuX  - 0.1f, (Settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
 			Drawing::rect(Settings::OptionUnselectedBackground, { Settings::menuX, (Settings::optionCount) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 			
 			if (onThis)
@@ -131,17 +134,26 @@ namespace MenuClass
 				Drawing::rect(Settings::OptionSelectedBackground, { Settings::menuX,  (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 		}
 
-		return onThis && Settings::selectPressed;
+		return return_on_hover ? onThis : (onThis && Settings::selectPressed);
 	}
 
 	bool menu_option(const char* option_name, SubMenus newSub)
 	{
-		option(option_name);
+		RGBA arrow_color_to_use = Settings::SubmenuArrow;
+
+		if (option(option_name, true))
+			arrow_color_to_use = Settings::SubmenuUnselectedArrow;
 
 		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
-			Drawing::rect(Settings::SubmenuRect, { Settings::menuX + (Settings::menuWidth / 2) - 0.002f, (Settings::optionCount) * 0.035f + 0.1415f }, { 0.004f, 0.035f });
+		{
+			for (float i = 0.01f; i <= 0.02f; i += 0.005f)
+				Drawing::sprite("commonmenu", "arrowright", Settings::menuX + (Settings::menuWidth / 2) - i, (Settings::optionCount) * 0.035f + 0.141f, 0.014063f, 0.025f, 0, arrow_color_to_use.r, arrow_color_to_use.g, arrow_color_to_use.b, arrow_color_to_use.a);
+		}
 		else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
-			Drawing::rect(Settings::SubmenuRect, { Settings::menuX + (Settings::menuWidth / 2) - 0.002f,  (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.1415f }, { 0.004f, 0.035f });
+		{
+			for (float i = 0.01f; i <= 0.02f; i += 0.005f)
+				Drawing::sprite("commonmenu", "arrowright", Settings::menuX + (Settings::menuWidth / 2) - i, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.141f, 0.014063f, 0.020f, 0, arrow_color_to_use.r, arrow_color_to_use.g, arrow_color_to_use.b, arrow_color_to_use.a);
+		}
 
 		if (Settings::optionCount == Settings::currentOption && Settings::selectPressed)
 		{
@@ -158,16 +170,16 @@ namespace MenuClass
 		if (b00l)
 		{
 			if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
-				Drawing::sprite("commonmenu", "common_medal", Settings::menuX + 0.068f, (Settings::optionCount * 0.035f + 0.141f), 0.014063f, 0.025f, 0, Settings::SubmenuRect.r, Settings::SubmenuRect.g, Settings::SubmenuRect.b, Settings::SubmenuRect.a);
+				Drawing::sprite("commonmenu", "common_medal", Settings::menuX + 0.087f, (Settings::optionCount * 0.035f + 0.141f), 0.014063f, 0.025f, 0, Settings::BoolButton.r, Settings::BoolButton.g, Settings::BoolButton.b, Settings::BoolButton.a);
 			else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
-				Drawing::sprite("commonmenu", "common_medal", Settings::menuX + 0.068f, ((Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.141f), 0.014063f, 0.025f, 0, Settings::SubmenuRect.r, Settings::SubmenuRect.g, Settings::SubmenuRect.b, Settings::SubmenuRect.a);
+				Drawing::sprite("commonmenu", "common_medal", Settings::menuX + 0.087f, ((Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.141f), 0.014063f, 0.025f, 0, Settings::BoolButton.r, Settings::BoolButton.g, Settings::BoolButton.b, Settings::BoolButton.a);
 		}
 		else
 		{
 			if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
-				Drawing::sprite("commonmenu", "common_medal", Settings::menuX + 0.068f, (Settings::optionCount * 0.035f + 0.141f), 0.014063f, 0.025f, 0, 102, 96, 96, 255);
+				Drawing::sprite("commonmenu", "common_medal", Settings::menuX + 0.087f, (Settings::optionCount * 0.035f + 0.141f), 0.014063f, 0.025f, 0, Settings::BoolButtonUnselected.r, Settings::BoolButtonUnselected.g, Settings::BoolButtonUnselected.b, Settings::BoolButtonUnselected.a);
 			else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
-				Drawing::sprite("commonmenu", "common_medal", Settings::menuX + 0.068f, ((Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.141f), 0.014063f, 0.025f, 0, 102, 96, 96, 255);
+				Drawing::sprite("commonmenu", "common_medal", Settings::menuX + 0.087f, ((Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.141f), 0.014063f, 0.025f, 0, 102, 96, 96, 255);
 		}
 
 		if (Settings::optionCount == Settings::currentOption && Settings::selectPressed)
@@ -199,12 +211,12 @@ namespace MenuClass
 
 		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
 			onThis
-				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
+					: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
 		else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
 			onThis
-				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f }, true, false)
+				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f }, true, false);
 
 		return onThis && Settings::selectPressed;
 	}
@@ -230,12 +242,12 @@ namespace MenuClass
 
 		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
 			onThis
-				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
+				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
 		else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
 			onThis
-				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f }, true, false)
+				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f }, true, false);
 
 		return onThis && Settings::selectPressed;
 	}
@@ -258,14 +270,14 @@ namespace MenuClass
 		std::string String = std::to_string(_float);
 		String = String.substr(0, 3);
 
-		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
+		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::	maxVisOptions)
 			onThis
-				? Drawing::text(("<" + String + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + String + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
-		else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
+			? Drawing::text(("<" + String + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f },	true, false)
+			: Drawing::text(("<" + String + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+		else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::	currentOption)
 			onThis
-				? Drawing::text(("<" + String + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + String + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+			? Drawing::text(("<" + String + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f },	true, false)
+			: Drawing::text(("<" + String + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f }, true, false);
 
 		return onThis && Settings::selectPressed;
 	}
@@ -288,14 +300,14 @@ namespace MenuClass
 		std::string String = std::to_string(_float);
 		String = String.substr(0, 3);
 
-		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
+		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::	maxVisOptions)
 			onThis
-				? Drawing::text(("<" + String + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + String + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
-		else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
+			? Drawing::text(("<" + String + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f },	true, false)
+			: Drawing::text(("<" + String + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+		else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::	currentOption)
 			onThis
-				? Drawing::text(("<" + String + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + String + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+			? Drawing::text(("<" + String + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f },	true, false)
+			: Drawing::text(("<" + String + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f }, true, false);
 
 		return onThis && Settings::selectPressed;
 	}
@@ -312,7 +324,7 @@ namespace MenuClass
 			{
 				if (selected_option != 0)
 					selected_option--;
-				else 
+				else
 					selected_option = 0;
 			}
 
@@ -322,12 +334,12 @@ namespace MenuClass
 
 		if (Settings::currentOption <= Settings::maxVisOptions && Settings::optionCount <= Settings::maxVisOptions)
 			onThis
-				? Drawing::text(("<" + std::to_string(list[selected_option]) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(list[selected_option]) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
+			? Drawing::	text(("<" + std::to_string(list[selected_option]) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::	text(("<" + std::to_string(list[selected_option]) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, Settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
 		else if (Settings::optionCount > Settings::currentOption - Settings::maxVisOptions && Settings::optionCount <= Settings::currentOption)
 			onThis
-				? Drawing::text(("<" + std::to_string(list[selected_option]) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(list[selected_option]) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.068f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+			? Drawing::	text(("<" + std::to_string(list[selected_option]) + ">").c_str(), Settings::OptionSelectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f }, true, false)
+			: Drawing::	text(("<" + std::to_string(list[selected_option]) + ">").c_str(), Settings::OptionUnselectedText, { Settings::menuX + 0.087f, (Settings::optionCount - (Settings::currentOption - Settings::maxVisOptions)) * 0.035f + 0.087f }, { 0.5f, 0.5f }, true, false);
 
 		return onThis && Settings::selectPressed;
 	}
@@ -336,7 +348,7 @@ namespace MenuClass
 	{
 		if (Settings::optionCount >= Settings::maxVisOptions)
 		{
-			Drawing::text((std::to_string(Settings::currentOption) + "/" + std::to_string(Settings::optionCount)).c_str(), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+			Drawing::text((std::to_string(Settings::currentOption) + "/" + std::to_string(Settings::optionCount)).c_str(), Settings::FooterText, { Settings::menuX + 0.082f, 0.126f }, { 0.45f, 0.45f }, false, false);
 			Drawing::rect(Settings::FooterBackground, { Settings::menuX, (Settings::maxVisOptions + 1) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 
 			if (Settings::currentOption == 1)
@@ -348,7 +360,7 @@ namespace MenuClass
 		}
 		else if (Settings::optionCount > 0)
 		{
-			Drawing::text((std::to_string(Settings::currentOption) + "/" + std::to_string(Settings::optionCount)).c_str(), Settings::FooterText, { Settings::menuX + (Settings::menuWidth / 2) - 0.03f, (Settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
+			Drawing::text((std::to_string(Settings::currentOption) + "/" + std::to_string(Settings::optionCount)).c_str(), Settings::FooterText, { Settings::menuX + 0.082f, 0.126f }, { 0.45f, 0.45f }, false, false);
 			Drawing::rect(Settings::FooterBackground, { Settings::menuX, (Settings::optionCount + 1) * 0.035f + 0.1415f }, { Settings::menuWidth, 0.035f });
 
 			if (Settings::currentOption == 1 && Settings::optionCount > 1)

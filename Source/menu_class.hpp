@@ -14,6 +14,7 @@ enum SubMenus //Add Sub Menus in here
 	SETTINGS_THEME_TITLERECT,
 	SETTINGS_THEME_SUBMENUBARTEXT,
 	SETTINGS_THEME_SUBMENUBARRECT,
+	SETTINGS_THEME_BOOLBUTTON,
 	SETTINGS_THEME_SUBMENUARROW,
 	SETTINGS_THEME_OPTIONTEXT,
 	SETTINGS_THEME_OPTIONRECT,
@@ -51,7 +52,10 @@ namespace MenuClass
 		extern RGBA TitleBackground;
 		extern RGBAF SubmenuBarText;
 		extern RGBA SubmenuBarBackground;
-		extern RGBA SubmenuRect;
+		extern RGBA BoolButton;
+		extern RGBA BoolButtonUnselected;
+		extern RGBA SubmenuArrow;
+		extern RGBA SubmenuUnselectedArrow;
 		extern RGBAF OptionUnselectedText;
 		extern RGBAF OptionSelectedText;
 		extern RGBA OptionUnselectedBackground;
@@ -84,7 +88,7 @@ namespace MenuClass
 	}
 
 	void title(const char* title);
-	bool option(const char* option_name);
+	bool option(const char* option_name, bool return_on_hover = false);
 	bool menu_option(const char* option_name, SubMenus newSub);
 	bool bool_option(const char* option_name, bool& b00l);
 	bool int_option(const char* option_name, int& _int, int min, int max);

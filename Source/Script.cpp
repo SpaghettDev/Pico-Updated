@@ -77,6 +77,7 @@ void PicoMenu()
 		MenuClass::menu_option("Title Background", SubMenus::SETTINGS_THEME_TITLERECT);
 		MenuClass::menu_option("Submenu Bar Text", SubMenus::SETTINGS_THEME_SUBMENUBARTEXT);
 		MenuClass::menu_option("Submenu Bar Background", SubMenus::SETTINGS_THEME_SUBMENUBARRECT);
+		MenuClass::menu_option("Bool Button", SubMenus::SETTINGS_THEME_BOOLBUTTON);
 		MenuClass::menu_option("Submenu Arrow", SubMenus::SETTINGS_THEME_SUBMENUARROW);
 		MenuClass::menu_option("Option Text", SubMenus::SETTINGS_THEME_OPTIONTEXT);
 		MenuClass::menu_option("Option Background", SubMenus::SETTINGS_THEME_OPTIONRECT);
@@ -86,10 +87,13 @@ void PicoMenu()
 		if (MenuClass::option("Revert To Default"))
 		{
 			MenuClass::Settings::TitleText = { 255, 255, 255, 255, 1 };
-			MenuClass::Settings::TitleBackground = { 3, 140, 252, 255 };
-			MenuClass::Settings::SubmenuBarText = { 255, 255, 255, 255, 4 };
+			MenuClass::Settings::TitleBackground = { 255, 255, 255, 255 };
+			MenuClass::Settings::SubmenuBarText = { 255, 255, 255, 255, 6 };
 			MenuClass::Settings::SubmenuBarBackground = { 0, 0, 0, 190 };
-			MenuClass::Settings::SubmenuRect = { 3, 140, 252, 255 };
+			MenuClass::Settings::BoolButton = { 3, 140, 252, 255 };
+			MenuClass::Settings::BoolButtonUnselected = { 102, 96, 96, 255 };
+			MenuClass::Settings::SubmenuArrow = { 255, 255, 255, 255 };
+			MenuClass::Settings::SubmenuUnselectedArrow = { 0, 0, 0, 255 };
 			MenuClass::Settings::OptionUnselectedText = { 255, 255, 255, 255, 4 };
 			MenuClass::Settings::OptionSelectedText = { 10, 10, 10, 255, 4 };
 			MenuClass::Settings::OptionUnselectedBackground = { 0, 0, 0, 160 };
@@ -140,17 +144,46 @@ void PicoMenu()
 		MenuClass::int_option("Alpha", MenuClass::Settings::SubmenuBarBackground.a, 0, 255);
 	}
 	break;
+	case SubMenus::SETTINGS_THEME_BOOLBUTTON:
+	{
+		MenuClass::title("Bool Button");
+
+		MenuClass::bool_option("Example", TestBool);
+
+		MenuClass::option("Unselected:");
+		MenuClass::int_option("Red", MenuClass::Settings::BoolButtonUnselected.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::BoolButtonUnselected.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::BoolButtonUnselected.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::BoolButtonUnselected.a, 0, 255);
+		
+		MenuClass::option("Selected:");
+		MenuClass::int_option("Red", MenuClass::Settings::BoolButton.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::BoolButton.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::BoolButton.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::BoolButton.a, 0, 255);
+
+	}
+	break;
 	case SubMenus::SETTINGS_THEME_SUBMENUARROW:
 	{
 		MenuClass::title("Submenu Arrow");
+		
+		MenuClass::menu_option("Example:", SubMenus::SETTINGS_THEME_SUBMENUARROW);
+		
+		MenuClass::option("Unselected:");
+		MenuClass::int_option("Red", MenuClass::Settings::SubmenuUnselectedArrow.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::SubmenuUnselectedArrow.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::SubmenuUnselectedArrow.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::SubmenuUnselectedArrow.a, 0, 255);
 
-		MenuClass::int_option("Red", MenuClass::Settings::SubmenuRect.r, 0, 255);
-		MenuClass::int_option("Green", MenuClass::Settings::SubmenuRect.g, 0, 255);
-		MenuClass::int_option("Blue", MenuClass::Settings::SubmenuRect.b, 0, 255);
-		MenuClass::int_option("Alpha", MenuClass::Settings::SubmenuRect.a, 0, 255);
+		MenuClass::option("Selected:");
+		MenuClass::int_option("Red", MenuClass::Settings::SubmenuArrow.r, 0, 255);
+		MenuClass::int_option("Green", MenuClass::Settings::SubmenuArrow.g, 0, 255);
+		MenuClass::int_option("Blue", MenuClass::Settings::SubmenuArrow.b, 0, 255);
+		MenuClass::int_option("Alpha", MenuClass::Settings::SubmenuArrow.a, 0, 255);
 	}
 	break;
-	case SETTINGS_THEME_OPTIONTEXT:
+	case SubMenus::SETTINGS_THEME_OPTIONTEXT:
 	{
 		MenuClass::title("Option Text");
 

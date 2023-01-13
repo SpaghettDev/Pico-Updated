@@ -38,21 +38,9 @@
 
 // Additional Header Files:
 #include "log.hpp"
-#include "signature_scanner.hpp"
-#include "offset_handler.hpp"
-#include "types.hpp"
 #include "enums.hpp"
-#include "crossmapping.hpp"
-#include "native_invoker.hpp"
-#include "native_caller.hpp"
 #include "natives.hpp"
 #include "hooking.hpp"
-#include "types.hpp"
-#include "input_hook.hpp"
-
-// Menu Files:
-#include "menu_class.hpp"
-#include "script.hpp"
 
 #include <locale>
 #include <codecvt>

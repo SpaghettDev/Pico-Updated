@@ -6,7 +6,13 @@ enum SubMenus //Add Sub Menus in here
 
 	MAIN,
 
-	TEST,
+	SELF,
+	SELF_PROOFS,
+	SELF_WANTEDLEVEL,
+
+	VEHICLESUB,
+	VEHICLESUB_PROOFS,
+	VEHICLESUB_MECHANIC,
 	
 	SETTINGS,
 	SETTINGS_THEME,
@@ -21,16 +27,16 @@ enum SubMenus //Add Sub Menus in here
 	SETTINGS_THEME_FOOTERRECT
 };
 
-namespace MenuClass
+namespace menu
 {
 	namespace Drawing 
 	{
-		void text(const char* text, RGBAF rgbaf, VECTOR2 position, VECTOR2_2 size, bool center, bool right);
-		void rect(RGBA rgba, VECTOR2 position, VECTOR2_2 size);
+		void text(const char* text, RGBAF rgbaf, Vector2 position, SizeVector size, bool center, bool right);
+		void rect(RGBA rgba, Vector2 position, SizeVector size);
 		void sprite(std::string Streamedtexture, std::string textureName, float x, float y, float width, float height, float rotation, int r, int g, int b, int a);
 	}
 
-	namespace Settings 
+	namespace settings 
 	{
 		extern bool selectPressed;
 		extern bool leftPressed;
@@ -78,13 +84,14 @@ namespace MenuClass
 		void CloseMenu();
 	}
 
-	namespace Checks 
+	namespace checks 
 	{
 		void keys();
 	}
 
 	void title(const char* title);
 	bool option(const char* option_name);
+	bool option(const char* option_name, bool& toggle_bool);
 	bool menu_option(const char* option_name, SubMenus newSub);
 	bool bool_option(const char* option_name, bool& b00l);
 	bool int_option(const char* option_name, int& _int, int min, int max);

@@ -1,8 +1,10 @@
 #pragma once
+#include "ped/CPedFactory.hpp"
+#include "network/CNetGamePlayer.hpp"
+#include "native_invoker.hpp"
 
 class netEventMgr;
 class datBitBuffer;
-class CNetGamePlayer;
 
 using GetNumberOfEvents = std::int32_t(std::int32_t eventGroup);
 using GetLabelText = const char* (void* unk, const char* label);
@@ -16,7 +18,6 @@ using ReceivedEvent = void(
 	int buffer_size,
 	datBitBuffer* buffer
 );
-using ScriptedGameEvent = bool(__int64 NetEventStruct, __int64 CNetGamePlayer);
 using SendEventAcknowledge = void(netEventMgr* event_manager, CNetGamePlayer* source_player, CNetGamePlayer* target_player, int event_index, int event_handled_bitset);
 
 // Bitbuffer functions
@@ -45,9 +46,8 @@ public:
 	static GetNumberOfEvents* m_GetNumberOfEvents;
 	static GetLabelText* m_GetLabelText;
 	static ReceivedEvent* m_ReceivedEvent;
-	static ScriptedGameEvent* m_ScriptedGameEvent;
 	static uint64_t* m_FrameCount;
-	static std::uint64_t** m_WorldPointer;
+	static CPedFactory** m_WorldPointer;
 	static std::uint64_t** m_GlobalBase;
 	static PVOID m_ModelSpawnBypass;
 	static void* m_NativeSpoofer;
@@ -65,8 +65,8 @@ public:
 	static WriteBitbufferBool* m_WriteBitbufferBoolean;
 	static WriteBitbufferArray* m_WriteBitbufferArray;
 
-	static void init(HMODULE hmoduleDLL);
-	static void __declspec(noreturn) cleanup(HMODULE hModule);
+	static void init();
+	static void __declspec(noreturn) cleanup();
 	static void on_tick_init();
 	static bool hook_natives();
 
@@ -83,7 +83,7 @@ public:
 
 		inline NativeRegistrationNew* getNextRegistration()
 		{
-			uintptr_t result;
+			uintptr_t result = 0;
 			auto v5 = reinterpret_cast<uintptr_t>(&nextRegistration1);
 			auto v12 = 2i64;
 			auto v13 = v5 ^ nextRegistration2;
@@ -108,7 +108,7 @@ public:
 
 			auto naddr = 16 * index + reinterpret_cast<uintptr_t>(&nextRegistration1) + 0x54;
 			auto v8 = 2i64;
-			uint64_t nResult;
+			uint64_t nResult = 0;
 			auto v11 = reinterpret_cast<char*>(&nResult) - naddr;
 			auto v10 = naddr ^ *reinterpret_cast<DWORD*>(naddr + 8);
 			do

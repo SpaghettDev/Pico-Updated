@@ -8,7 +8,7 @@ namespace
 
 void InputHook::init()
 {
-	pico::g_og_wndproc = WNDPROC(SetWindowLongPtrW(pico::g_hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&InputHook::wndproc)));
+	pico::g_og_wndproc = reinterpret_cast<WNDPROC>(SetWindowLongPtrW(pico::g_hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&InputHook::wndproc)));
 	LOG_MSG("Successfully hooked WNDPROC");
 }
 

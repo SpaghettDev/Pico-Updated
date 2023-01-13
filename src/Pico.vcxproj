@@ -85,8 +85,8 @@
       </FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;WIN32_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)MinHook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)MinHook\include;$(ProjectDir)GTAV-Classes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeaderFile>stdafx.hpp</PrecompiledHeaderFile>
       <TreatWarningAsError>false</TreatWarningAsError>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -103,18 +103,21 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(ProjectDir)MinHook\lib\minhook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ForceFileOutput>
+      </ForceFileOutput>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CNetGamePlayer.hpp" />
     <ClInclude Include="crossmapping.hpp" />
     <ClInclude Include="enums.hpp" />
+    <ClInclude Include="functions.hpp" />
     <ClInclude Include="hooking.hpp" />
     <ClInclude Include="input_hook.hpp" />
     <ClInclude Include="log.hpp" />
-    <ClInclude Include="misc.hpp" />
+    <ClInclude Include="looped.hpp" />
     <ClInclude Include="net_game_event.hpp" />
     <ClInclude Include="offset_handler.hpp" />
+    <ClInclude Include="player.hpp" />
     <ClInclude Include="script_global.hpp" />
     <ClInclude Include="signature_scanner.hpp" />
     <ClInclude Include="menu_class.hpp" />
@@ -130,7 +133,6 @@
   <ItemGroup>
     <ClCompile Include="crossmapping.cpp" />
     <ClCompile Include="input_hook.cpp" />
-    <ClCompile Include="joaat.hpp" />
     <ClCompile Include="main.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

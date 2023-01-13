@@ -21,7 +21,7 @@ namespace
 }
 
 
-void Log::init(HMODULE hModule)
+void Log::init()
 {
 	if (AllocConsole())
 	{

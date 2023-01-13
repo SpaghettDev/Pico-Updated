@@ -14,7 +14,7 @@ class Log
 public:
 	static char* g_log_file_path;
 	static void log(LogLevel type, const char* file_name, int line, const char* fmt, ...);
-	static void init(HMODULE hModule);
+	static void init();
 };
 
 

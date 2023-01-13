@@ -1,5 +1,5 @@
 #pragma once
-#include "CNetGamePlayer.hpp"
+#include "network/netPlayer.hpp"
 
 class datBitBuffer
 {
@@ -259,20 +259,20 @@ public:
 	virtual ~netGameEvent() = default;
 
 	virtual const char* get_name() { return 0; };
-	virtual bool is_in_scope(netPlayer* player) { return 0; };
+	virtual bool is_in_scope(rage::netPlayer* player) { return 0; };
 	virtual bool time_to_resend(std::uint32_t time) { return 0; };
 	virtual bool can_change_scope() { return 0; };
 
-	virtual void prepare_data(datBitBuffer* buffer, netPlayer* source_player, netPlayer* target_player) {};
-	virtual void handle_data(datBitBuffer* buffer, netPlayer* source_player, netPlayer* target_player) {};
+	virtual void prepare_data(datBitBuffer* buffer, rage::netPlayer* source_player, rage::netPlayer* target_player) {};
+	virtual void handle_data(datBitBuffer* buffer, rage::netPlayer* source_player, rage::netPlayer* target_player) {};
 
-	virtual bool decide(netPlayer* source_player, netPlayer* target_player) { return 0; };
+	virtual bool decide(rage::netPlayer* source_player, rage::netPlayer* target_player) { return 0; };
 
-	virtual void prepare_reply(datBitBuffer* buffer, netPlayer* reply_player) {};
-	virtual void handle_reply(datBitBuffer* buffer, netPlayer* souce_player) {};
+	virtual void prepare_reply(datBitBuffer* buffer, rage::netPlayer* reply_player) {};
+	virtual void handle_reply(datBitBuffer* buffer, rage::netPlayer* souce_player) {};
 
-	virtual void prepare_extra_data(datBitBuffer* buffer, bool is_reply, netPlayer* player, netPlayer* player2) {};
-	virtual void handle_extra_data(datBitBuffer* buffer, bool is_reply, netPlayer* player, netPlayer* player2) {};
+	virtual void prepare_extra_data(datBitBuffer* buffer, bool is_reply, rage::netPlayer* player, rage::netPlayer* player2) {};
+	virtual void handle_extra_data(datBitBuffer* buffer, bool is_reply, rage::netPlayer* player, rage::netPlayer* player2) {};
 
 private:
 	virtual void unk_0x60() {};
@@ -292,8 +292,8 @@ public:
 private:
 	char m_padding1[0x05];       // 0x0B
 public:
-	netPlayer* m_source_player;  // 0x10
-	netPlayer* m_target_player;  // 0x18
+	rage::netPlayer* m_source_player;  // 0x10
+	rage::netPlayer* m_target_player;  // 0x18
 	std::uint32_t m_resend_time; // 0x20
 private:
 	std::uint16_t m_0x24;        // 0x24

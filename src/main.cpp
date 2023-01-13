@@ -1,4 +1,5 @@
 #include "stdafx.hpp"
+#include "input_hook.hpp"
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, PVOID)
 {
@@ -18,8 +19,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, PVOID)
 
 			try
 			{
-				Log::init(g_hmodule);
-				Hooking::init(g_hmodule);
+				Log::init();
+				Hooking::init();
 				InputHook::init();
 				LOG_MSG("Pico Menu Initialized");
 
@@ -28,7 +29,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, PVOID)
 					std::this_thread::sleep_for(500ms);
 
 				InputHook::cleanup();
-				Hooking::cleanup(g_hmodule);
+				Hooking::cleanup();
 			}
 			catch (std::exception const& ex)
 			{

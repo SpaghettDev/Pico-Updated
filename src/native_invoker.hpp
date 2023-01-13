@@ -50,7 +50,7 @@ private:
 	};
 
 	// Anything temporary that we need
-	uint8_t m_TempStack[MaxNativeParams * ArgSize];
+	uint8_t m_TempStack[MaxNativeParams * ArgSize] = { 0 };
 
 public:
 

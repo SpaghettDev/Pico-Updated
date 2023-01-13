@@ -12,11 +12,11 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Source Files\functions">
-      <UniqueIdentifier>{90104589-aa70-4c86-8b24-09df64994737}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\gta">
       <UniqueIdentifier>{30a77005-5c72-4770-b3de-68a03b538f99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\functions">
+      <UniqueIdentifier>{b184f7eb-871f-4501-98e9-30c8cbf78985}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -65,20 +65,23 @@
     <ClInclude Include="input_hook.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils.hpp">
-      <Filter>Source Files\functions</Filter>
-    </ClInclude>
-    <ClInclude Include="misc.hpp">
-      <Filter>Source Files\functions</Filter>
-    </ClInclude>
-    <ClInclude Include="vehicle.hpp">
-      <Filter>Source Files\functions</Filter>
-    </ClInclude>
     <ClInclude Include="net_game_event.hpp">
       <Filter>Header Files\gta</Filter>
     </ClInclude>
-    <ClInclude Include="CNetGamePlayer.hpp">
-      <Filter>Header Files\gta</Filter>
+    <ClInclude Include="functions.hpp">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="player.hpp">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.hpp">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle.hpp">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="looped.hpp">
+      <Filter>Header Files\functions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -108,9 +111,6 @@
     </ClCompile>
     <ClCompile Include="input_hook.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="joaat.hpp">
-      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

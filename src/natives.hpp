@@ -1,5 +1,8 @@
 #pragma once
 #include "stdafx.hpp"
+#include "types.hpp"
+#include "native_invoker.hpp"
+#include "native_caller.hpp"
 
 // Generated on 19/09/2022, 12:12:31
 // https://nativedb.spyral.dev

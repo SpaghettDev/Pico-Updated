@@ -1,5 +1,9 @@
 #pragma once
 #include "stdafx.hpp"
+#include "hooking.hpp"
+#include "script.hpp"
+#include "signature_scanner.hpp"
+#include "crossmapping.hpp"
 
 HANDLE MainFiber;
 DWORD WakeTime;
@@ -9,9 +13,8 @@ eGameState* Hooking::m_GameState;
 GetNumberOfEvents* Hooking::m_GetNumberOfEvents;
 GetLabelText* Hooking::m_GetLabelText;
 ReceivedEvent* Hooking::m_ReceivedEvent;
-ScriptedGameEvent* Hooking::m_ScriptedGameEvent;
 uint64_t* Hooking::m_FrameCount;
-std::uint64_t** Hooking::m_WorldPointer;
+CPedFactory** Hooking::m_WorldPointer;
 std::uint64_t** Hooking::m_GlobalBase;
 PVOID Hooking::m_ModelSpawnBypass;
 void* Hooking::m_NativeSpoofer;
@@ -34,13 +37,13 @@ WriteBitbufferArray* Hooking::m_WriteBitbufferArray;
 using namespace std::chrono_literals;
 
 /* Start Hooking */
-void Hooking::init(HMODULE hmoduleDLL)
+void Hooking::init()
 {
 	find_patterns();
 	while (*g_hooking.m_GameState != eGameState::Playing)
 		Sleep(200);
 	if (!initialize_hooks())
-		cleanup(hmoduleDLL);
+		cleanup();
 }
 
 bool Hooking::initialize_hooks()
@@ -305,7 +308,7 @@ void WAIT(DWORD ms)
 	SwitchToFiber(MainFiber);
 }
 
-void __declspec(noreturn) Hooking::cleanup(HMODULE hModule)
+void __declspec(noreturn) Hooking::cleanup()
 {
 	LOG_MSG("Cleaning up hooks");
 	for (auto func : m_Hooks)
@@ -330,7 +333,7 @@ void __declspec(noreturn) Hooking::cleanup(HMODULE hModule)
 
 	fclose(stdout);
 	FreeConsole();
-	FreeLibraryAndExitThread(hModule, 0);
+	FreeLibraryAndExitThread(pico::g_hmodule, 0);
 }
 
 MinHookKeepalive::MinHookKeepalive()

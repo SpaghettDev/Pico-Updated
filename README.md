@@ -1,11 +1,35 @@
 # Pico-Updated
 [Pico][pico] updated to latest version of GTA (1.64 Build 2802) and with some nice features.
 
+## Some info
 Original Uknowncheats post is [here][pico].
 <details>
 <summary>Image of Menu</summary>
 <br>
 <img src="https://raw.githubusercontent.com/SpaghettDev/Pico-Updated/master/assets/Pico.png" width="420"/>
+</details>
+
+<details>
+<summary>How to generate the solution</summary>
+
+If you have no experience in building a dll using Visual Studio, then you can head to the [releases](https://github.com/SpaghettDev/Pico-Updated/releases) and download the pre-built dll.
+<br>
+If not, then follow these steps:
+1. Clone this repo (you will need the [git cli](https://git-scm.com/downloads)):
+```shell
+git clone https://github.com/SpaghettDev/Pico-Updated.git
+```
+2. cd to the folder that now contains the cloned repo:
+```shell
+cd path/to/cloned/repo
+```
+3. Make the solution (you will need the [cmake cli](https://cmake.org/download)):
+```shell
+mkdir build
+cd build
+cmake ..
+```
+4. The solution will be in the build folder
 </details>
 
 Was bored so decided to take on the challenge of updating a menu to work on the latest patch.

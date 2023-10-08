@@ -38,16 +38,19 @@ namespace // from YimMenu
 
 namespace functions::vehicle
 {
-	bool spawn_vehicle(Hash name, Vector3 position, bool networked = true)
+	Vehicle spawn_vehicle(Hash name, Vector3 position, bool put_in = true, bool networked = true)
 	{
-		if (!utils::request_model(name) || !STREAMING::IS_MODEL_IN_CDIMAGE(name) || !STREAMING::IS_MODEL_VALID(name) || !STREAMING::IS_MODEL_A_VEHICLE(name))
-			return false;
+		if (!utils::is_model_a_car(name) || !utils::request_model(name))
+			return -1;
+		
+		Vehicle vehicle = utils::apply_model_spawn_bypass(
+			[name, position, networked] {
+				return VEHICLE::CREATE_VEHICLE(name, position.x, position.y, position.z, 0.f, networked, false, true /* allow spawning when pos.z > -100 */);
+			}
+		);
 
-		*reinterpret_cast<unsigned short*>(g_hooking.m_ModelSpawnBypass) = 0x9090;
-		Vehicle vehicle = VEHICLE::CREATE_VEHICLE(name, position.x, position.y, position.z, 0.f, networked, false, false);
-		*reinterpret_cast<unsigned short*>(g_hooking.m_ModelSpawnBypass) = 0x0574;
-
-		PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), vehicle, -1);
+		if (put_in)
+			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), vehicle, -1);
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(name);
 
 		if (*g_hooking.m_IsSessionStarted && networked)
@@ -60,11 +63,14 @@ namespace functions::vehicle
 			VEHICLE::SET_VEHICLE_IS_STOLEN(vehicle, false);
 		}
 
-		return true;
+		return vehicle;
 	}
 
 	void max_vehicle(Vehicle veh)
 	{
+		if (!veh)
+			notify_feature("Vehicle", "Please be in a vehicle");
+
 		Hash model = ENTITY::GET_ENTITY_MODEL(veh);
 
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
@@ -100,10 +106,13 @@ namespace functions::vehicle
 		}
 	}
 
-	bool repair(Vehicle veh)
+	bool repair(Vehicle veh, bool notify = true)
 	{
 		if (!ENTITY::IS_ENTITY_A_VEHICLE(veh) || !utils::take_control_of(veh))
+		{
+			if (notify) notify_feature("Vehicle", "Please be in a vehicle");
 			return false;
+		}
 
 		VEHICLE::SET_VEHICLE_FIXED(veh);
 		VEHICLE::SET_VEHICLE_DEFORMATION_FIXED(veh);
@@ -141,8 +150,9 @@ namespace functions::vehicle
 
 	void horn_boost(Vehicle veh)
 	{
-		static constexpr float horn_boost_speed_default = 10.f;
-		static constexpr float horn_boost_speed_max = 200.f;
+		// my dear YimMenu
+		static float horn_boost_speed_default = 10.f;
+		static float horn_boost_speed_max = 200.f;
 
 		static float horn_boost_speed = horn_boost_speed_default;
 
@@ -158,10 +168,10 @@ namespace functions::vehicle
 		if (PAD::IS_CONTROL_PRESSED(0, static_cast<int>(ControllerInputs::INPUT_VEH_HORN)))
 		{
 			if (horn_boost_speed < horn_boost_speed_max)
-				horn_boost_speed += horn_boost_speed_increment;
+				horn_boost_speed += pico::g_json.m_settings.vehicle.horn_boost_increment;
 
 			const auto velocity =
-				ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh, 0.f, horn_boost_speed, 0.f) - ENTITY::GET_ENTITY_COORDS(veh, true);
+				ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh, 0.f, horn_boost_speed, 0.f) - world::get_entity_coords(veh);
 
 			ENTITY::SET_ENTITY_VELOCITY(veh, velocity.x, velocity.y, velocity.z);
 		}

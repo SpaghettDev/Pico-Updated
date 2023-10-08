@@ -5,6 +5,8 @@
 struct SizeVector 
 {
 	float w, h;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SizeVector, w, h);
 };
 #pragma pack(pop)
 
@@ -12,6 +14,8 @@ struct SizeVector
 struct RGBAF 
 {
 	int r, g, b, a, f;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(RGBAF, r, g, b, a, f);
 };
 #pragma pack(pop)
 
@@ -19,6 +23,8 @@ struct RGBAF
 struct RGBA 
 {
 	int r, g, b, a;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(RGBA, r, g, b, a);
 };
 #pragma pack(pop)
 
@@ -26,6 +32,9 @@ struct RGBA
 struct RGB 
 {
 	int r, g, b;
+
+#undef RGB
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(RGB, r, g, b);
 };
 #pragma pack(pop)
 
@@ -45,7 +54,7 @@ namespace rage
 			x(x), y(y), z(z)
 		{}
 
-		scrVector operator+(const scrVector& other)
+		scrVector operator+(const scrVector& other) const
 		{
 			scrVector vec;
 			vec.x = this->x + other.x;
@@ -54,7 +63,7 @@ namespace rage
 			return vec;
 		}
 
-		scrVector operator-(const scrVector& other)
+		scrVector operator-(const scrVector& other) const
 		{
 			scrVector vec;
 			vec.x = this->x - other.x;
@@ -63,7 +72,7 @@ namespace rage
 			return vec;
 		}
 
-		scrVector operator*(const scrVector& other)
+		scrVector operator*(const scrVector& other) const
 		{
 			scrVector vec;
 			vec.x = this->x * other.x;
@@ -72,7 +81,7 @@ namespace rage
 			return vec;
 		}
 
-		scrVector operator*(const float& other)
+		scrVector operator*(float other) const
 		{
 			scrVector vec;
 			vec.x = this->x * other;
@@ -80,18 +89,56 @@ namespace rage
 			vec.z = this->z * other;
 			return vec;
 		}
+
+		bool operator==(const scrVector& other) const
+		{
+			return
+				this->x == other.x &&
+				this->y == other.y &&
+				this->z == other.z;
+		}
+		
+		bool operator==(float other) const
+		{
+			return
+				this->x == other &&
+				this->y == other &&
+				this->z == other;
+		}
+
+		float sum() const
+		{
+			return 
+				this->x +
+				this->y +
+				this->z;
+		}
+
+		float dot(const scrVector& other) const
+		{
+			return this->operator*(other).sum();
+		}
+
+		scrVector cross(const scrVector& other) const
+		{
+			return {
+				this->y * other.z - this->z * other.y,
+				this->z * other.x - this->x * other.z,
+				this->x * other.y - this->y * other.x
+			};
+		}
 	public:
 		float x{};
 	private:
-		char m_padding1[0x04];
+		char m_padding1[0x04]{};
 	public:
 		float y{};
 	private:
-		char m_padding2[0x04];
+		char m_padding2[0x04]{};
 	public:
 		float z{};
 	private:
-		char m_padding3[0x04];
+		char m_padding3[0x04]{};
 	};
 #pragma pack(pop)
 }

@@ -1,25 +1,48 @@
 #pragma once
 
-enum SubMenus //Add Sub Menus in here
+enum submenus //Add Sub Menus in here
 {
-	NOTHING,
-
 	MAIN,
 
 	SELF,
 	SELF_PROOFS,
 	SELF_WANTEDLEVEL,
 
-	VEHICLESUB,
+	HUDSUB,
+	
+	TRACERANDESP,
+	TRACERANDESP_COLORS,
+
+	TELEPORT,
+	TELEPORT_SAVED,
+
+	WEAPONS,
+	WEAPONS_CUSTOMAMMO,
+	WEAPONS_CUSTOMGUN,
+
+	VEHICLESUB, // VEHICLE is a native namespace
+	VEHICLESUB_SPAWNER,
 	VEHICLESUB_PROOFS,
 	VEHICLESUB_MECHANIC,
+
+	WORLD,
+	WORLD_IPL,
+	WORLD_WEATHERANDTIME,
+	WORLD_OBJECTSPAWNER,
+	WORLD_OBJECTSPAWNER_SPAWNEDOBJECTS,
+	WORLD_PEDSPAWNER,
+	WORLD_PEDSPAWNER_SPAWNEDPEDS,
+
+	ONLINE,
 	
 	SETTINGS,
+	SETTINGS_INPUT,
 	SETTINGS_THEME,
 	SETTINGS_THEME_TITLETEXT,
 	SETTINGS_THEME_TITLERECT,
 	SETTINGS_THEME_SUBMENUBARTEXT,
 	SETTINGS_THEME_SUBMENUBARRECT,
+	SETTINGS_THEME_SEPERATORRECT,
 	SETTINGS_THEME_SUBMENUARROW,
 	SETTINGS_THEME_OPTIONTEXT,
 	SETTINGS_THEME_OPTIONRECT,
@@ -29,59 +52,48 @@ enum SubMenus //Add Sub Menus in here
 
 namespace menu
 {
-	namespace Drawing 
+	namespace drawing 
 	{
-		void text(const char* text, RGBAF rgbaf, Vector2 position, SizeVector size, bool center, bool right);
-		void rect(RGBA rgba, Vector2 position, SizeVector size);
-		void sprite(std::string Streamedtexture, std::string textureName, float x, float y, float width, float height, float rotation, int r, int g, int b, int a);
+		void text(std::string_view, RGBAF, Vector2, SizeVector, bool, bool);
+		void rect(RGBA, Vector2, SizeVector);
+		void sprite(std::string_view, std::string_view, float, float, float, float, float, RGBA);
 	}
 
 	namespace settings 
 	{
-		extern bool selectPressed;
-		extern bool leftPressed;
-		extern bool rightPressed;
+		extern int max_vis_options;
+		extern int current_option;
+		extern int previous_option;
+		extern int option_count;
+		extern int seperator_count;
 
-		extern int maxVisOptions;
-		extern int currentOption;
-		extern int optionCount;
-
-		extern SubMenus currentMenu;
-		extern SubMenus menuLevel;
-		extern std::array<int, 1000> optionsArray;
-		extern std::array<SubMenus, 1000> menusArray;
-
-		extern float menuX;
-		extern float menuWidth;
-		extern RGBAF TitleText;
-		extern RGBA TitleBackground;
-		extern RGBAF SubmenuBarText;
-		extern RGBA SubmenuBarBackground;
-		extern RGBA SubmenuRect;
-		extern RGBAF OptionUnselectedText;
-		extern RGBAF OptionSelectedText;
-		extern RGBA OptionUnselectedBackground;
-		extern RGBA OptionSelectedBackground;
-		extern RGBAF FooterText;
-		extern RGBA FooterBackground;
-		extern RGBA FooterSprite;
-
-		extern int keyPressDelay;
-		extern ULONGLONG keyPressPreviousTick;
-		extern const int openKey;
-		extern const int backKey;
-		extern const int upKey;
-		extern const int downKey;
-		extern const int leftKey;
-		extern const int rightKey;
-		extern const int selectKey;
+		extern submenus current_menu;
+		extern submenus previous_menu;
+		extern submenus menu_level;
+		extern std::array<int, 1000> options_array;
+		extern std::array<submenus, 1000> menus_array;
+		extern bool menu_visible;
+		extern float menu_x;
+		extern float menu_width;
 	}
 
-	namespace MenuLevelHandler 
+	namespace menu_level_handler 
 	{
-		void MoveMenu(SubMenus menu);
-		void BackMenu();
-		void CloseMenu();
+		void move_menu(submenus);
+		void move_option(int);
+		void back_menu();
+	}
+
+	namespace keys
+	{
+		extern bool select_pressed;
+		extern bool left_pressed;
+		extern bool right_pressed;
+
+		extern int key_press_delay;
+		extern ULONGLONG key_press_previous_tick;
+
+		bool is_key_pressed(int);
 	}
 
 	namespace checks 
@@ -89,17 +101,56 @@ namespace menu
 		void keys();
 	}
 
-	void title(const char* title);
-	bool option(const char* option_name);
-	bool option(const char* option_name, bool& toggle_bool);
-	bool menu_option(const char* option_name, SubMenus newSub);
-	bool bool_option(const char* option_name, bool& b00l);
-	bool int_option(const char* option_name, int& _int, int min, int max);
-	bool int_option(const char* option_name, int& _int, int min, int max, int step);
-	bool float_option(const char* option_name, float& _float, float min, float max);
-	bool float_option(const char* option_name, float& _float, float min, float max, float step);
-	template<typename T>
-	bool list_option(const char* option_name, std::vector<T> list, int& selected_option);
+	void title(std::string_view);
+	structs::button option(std::string_view);
+	structs::button option(std::string_view, bool&);
+	void seperator();
+	structs::button menu_option(std::string_view, submenus);
+	structs::button bool_option(std::string_view, bool&);
+	structs::button int_option(std::string_view, int&, int, int, int = 1);
+	structs::button int_option(std::string_view, int&, int = 1);
+	structs::button float_option(std::string_view, float&, float, float, float = 0.1f, int = 2);
+	structs::button float_option(std::string_view, float&, float = 0.1f, int = 2);
+	template <typename T>
+	structs::button vector_option(
+		std::string_view,
+		const std::vector<T>&,
+		std::size_t&,
+		float = 0.008f,
+		std::function<std::string_view(std::string_view)> = [](std::string_view s) { return s; }
+	);
+	template <>
+	structs::button vector_option(
+		std::string_view,
+		const std::vector<std::string_view>&,
+		std::size_t&,
+		float,
+		std::function<std::string_view(std::string_view)>
+	);
+	template <>
+	structs::button vector_option(
+		std::string_view,
+		const std::vector<std::string>&,
+		std::size_t&,
+		float,
+		std::function<std::string_view(std::string_view)>
+	);
+
+	structs::button object_vector_option(
+		std::string_view,
+		const std::vector<structs::spawned_obj>&,
+		std::size_t&,
+		float = 0.008f,
+		std::function<std::string_view(structs::spawned_obj)> = [](structs::spawned_obj obj) { return obj.name; }
+	);
+
+	structs::button ped_vector_option(
+		std::string_view,
+		const std::vector<structs::spawned_ped>&,
+		std::size_t&,
+		float = 0.008f,
+		std::function<std::string_view(structs::spawned_ped)> = [](structs::spawned_ped ped) { return ped.name; }
+	);
 
 	void end();
 	void reset_optioncount();

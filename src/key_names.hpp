@@ -1,0 +1,110 @@
+#pragma once
+#include "stdafx.hpp"
+
+namespace
+{
+	// https://docs.fivem.net/docs/game-references/controls
+	std::map<int, std::string_view> key_names{
+		{ VK_LBUTTON, "~INPUT_CURSOR_ACCEPT~" },
+		{ VK_RBUTTON, "~INPUT_CURSOR_CANCEL~" },
+		{ VK_MBUTTON, "~INPUT_MAP_POI~" },
+		{ VK_BACK, "~INPUT_FRONTEND_RRIGHT~" },
+		{ VK_TAB, "~INPUT_FRONTEND_RUP~" },
+		{ VK_RETURN, "~INPUT_FRONTEND_RDOWN~" },
+		{ VK_SHIFT, "~INPUT_FRONTEND_LS~" },
+		{ VK_CONTROL, "~INPUT_FRONTEND_RS~" },
+		{ VK_MENU, "~INPUT_CHARACTER_WHEEL~" },
+		{ VK_CAPITAL, "~INPUT_FRONTEND_SELECT~" },
+		{ VK_ESCAPE, "~INPUT_FRONTEND_PAUSE_ALTERNATE~"},
+		{ VK_SPACE, "~INPUT_JUMP~" },
+		{ VK_PRIOR, "~INPUT_FRONTEND_RT~" },
+		{ VK_NEXT, "~INPUT_FRONTEND_LT~" },
+		{ VK_HOME, "~INPUT_FRONTEND_SOCIAL_CLUB~" },
+		{ VK_LEFT, "~INPUT_CELLPHONE_LEFT~" },
+		{ VK_UP, "~INPUT_CELLPHONE_UP~" },
+		{ VK_RIGHT, "~INPUT_CELLPHONE_RIGHT~" },
+		{ VK_DOWN, "~INPUT_CELLPHONE_DOWN~" },
+		{ VK_INSERT, "~INPUT_VEH_FLY_ATTACK_CAMERA~" },
+		{ VK_DELETE, "~INPUT_CELLPHONE_OPTION~" },
+		// no 0
+		{ VK_1, "~INPUT_SELECT_WEAPON_UNARMED~" },
+		{ VK_2, "~INPUT_SELECT_WEAPON_MELEE~" },
+		{ VK_3, "~INPUT_SELECT_WEAPON_SHOTGUN~" },
+		{ VK_4, "~INPUT_SELECT_WEAPON_HEAVY~" },
+		{ VK_5, "~INPUT_SELECT_WEAPON_SPECIAL~" },
+		{ VK_6, "~INPUT_SELECT_WEAPON_HANDGUN~" },
+		{ VK_7, "~INPUT_SELECT_WEAPON_SMG~" },
+		{ VK_8, "~INPUT_SELECT_WEAPON_AUTO_RIFLE~" },
+		{ VK_9, "~INPUT_SELECT_WEAPON_SNIPER~" },
+		{ VK_A, "~INPUT_MOVE_LEFT_ONLY~" },
+		{ VK_B, "~INPUT_SPECIAL_ABILITY_SECONDARY~" },
+		{ VK_C, "~INPUT_VEH_LOOK_BEHIND~" },
+		{ VK_D, "~INPUT_VEH_MOVE_RIGHT_ONLY~" },
+		{ VK_E, "~INPUT_PICKUP~" },
+		{ VK_F, "~INPUT_ENTER~" },
+		{ VK_G, "~INPUT_DETONATE~" },
+		{ VK_H, "~INPUT_VEH_HEADLIGHT~" },
+		// no I
+		// no J
+		{ VK_K, "~INPUT_REPLAY_SHOWHOTKEY~" },
+		{ VK_L, "~INPUT_CELLPHONE_CAMERA_FOCUS_LOCK~" },
+		{ VK_M, "~INPUT_INTERACTION_MENU~" },
+		{ VK_N, "~INPUT_PUSH_TO_TALK~" },
+		// no O
+		{ VK_P, "~INPUT_FRONTEND_PAUSE~" },
+		{ VK_Q, "~INPUT_VEH_RADIO_WHEEL~" },
+		{ VK_R, "~INPUT_VEH_CIN_CAM~" },
+		{ VK_S, "~INPUT_VEH_FLY_THROTTLE_DOWN~" },
+		{ VK_T, "~INPUT_MP_TEXT_CHAT_ALL~" },
+		{ VK_U, "~INPUT_REPLAY_SCREENSHOT~" },
+		{ VK_V, "~INPUT_REPLAY_TOGGLETIPS~" },
+		{ VK_W, "~INPUT_SCRIPT_PAD_UP~" },
+		{ VK_X, "~INPUT_CREATOR_LT~" },
+		{ VK_Y, "~INPUT_MP_TEXT_CHAT_TEAM~" },
+		{ VK_Z, "~INPUT_HUD_SPECIAL~" },
+		// no numpad 0
+		// no numpad 1
+		// no numpad 2
+		// no numpad 3
+		{ VK_NUMPAD4, "~INPUT_VEH_FLY_ROLL_LEFT_ONLY~" },
+		{ VK_NUMPAD5, "~INPUT_VEH_FLY_PITCH_UD~" },
+		{ VK_NUMPAD6, "~INPUT_VEH_FLY_ROLL_RIGHT_ONLY~" },
+		{ VK_NUMPAD7, "~INPUT_VEH_FLY_SELECT_TARGET_LEFT~" },
+		{ VK_NUMPAD8, "~INPUT_VEH_FLY_PITCH_UP_ONLY~" },
+		{ VK_NUMPAD9, "~INPUT_VEH_FLY_SELECT_TARGET_RIGHT~" },
+		{ VK_ADD, "~INPUT_REPLAY_FOVINCREASE~" },
+		{ VK_SUBTRACT, "~INPUT_REPLAY_FOVDECREASE~" },
+		{ VK_DECIMAL, "~INPUT_VEH_NEXT_RADIO~" },
+		{ VK_DIVIDE, "~INPUT_ENTER_CHEAT_CODE~" }, // not 100% correct
+		{ VK_F1, "~INPUT_REPLAY_START_STOP_RECORDING~" },
+		{ VK_F2, "~INPUT_REPLAY_START_STOP_RECORDING_SECONDARY~" },
+		{ VK_F3, "~INPUT_SAVE_REPLAY_CLIP~" },
+		// no F4
+		{ VK_F5, "~INPUT_SELECT_CHARACTER_MICHAEL~" },
+		{ VK_F6, "~INPUT_SELECT_CHARACTER_FRANKLIN~" },
+		{ VK_F7, "~INPUT_SELECT_CHARACTER_TREVOR~" },
+		{ VK_F8, "~INPUT_SELECT_CHARACTER_MULTIPLAYER~" },
+		{ VK_F9, "~INPUT_DROP_WEAPON~" },
+		{ VK_F10, "~INPUT_DROP_AMMO~" },
+		{ VK_F11, "~INPUT_SWITCH_VISOR~" },
+		// no F12-F24
+		{ VK_LSHIFT, "~INPUT_SPRINT~" },
+		// no right shift
+		{ VK_LCONTROL, "~INPUT_FRONTEND_RS~" },
+		// no right control
+		{ VK_LMENU, "~INPUT_CHARACTER_WHEEL~" },
+		// no right menu (alt)
+		{ VK_OEM_PLUS, "~INPUT_REPLAY_FOVINCREASE~" }, // this is the regular +, but NUMPAD + also works so meh
+		{ VK_OEM_COMMA, "~INPUT_VEH_PREV_RADIO~" },
+		{ VK_OEM_MINUS, "~INPUT_VEH_PREV_RADIO_TRACK~" },
+		{ VK_OEM_PERIOD, "~INPUT_VEH_NEXT_RADIO~" },
+		{ VK_OEM_3, "~INPUT_ENTER_CHEAT_CODE~" }, // not 100% correct
+		{ VK_OEM_4, "~INPUT_SNIPER_ZOOM~" }, // technically "[{" but meh
+		// no oem_5
+		{ VK_OEM_6, "~INPUT_SNIPER_ZOOM_IN_ONLY~" }, // technically "]}" but meh
+		// no oem_7-oem_8 & oem_102
+	};
+
+	// helper for ControllerInputs enum: TO_INPUT_STR(ControllerInputs::INPUT_NEXT_CAMERA) -> "INPUT_NEXT_CAMERA"
+#define TO_INPUT_STR(i) "~" + std::regex_replace(#i, std::regex(R"(\w+::)"), "") + "~"
+}

@@ -13,6 +13,8 @@ set(Header_Files
     "enums.hpp"
     "hooking.hpp"
     "input_hook.hpp"
+    "json_service.hpp"
+    "key_codes.hpp"
     "log.hpp"
     "native_caller.hpp"
     "native_invoker.hpp"
@@ -21,6 +23,7 @@ set(Header_Files
     "script_global.hpp"
     "signature_scanner.hpp"
     "stdafx.hpp"
+    "structs.hpp"
     "types.hpp"
 )
 source_group("Header Files" FILES ${Header_Files})
@@ -28,14 +31,21 @@ source_group("Header Files" FILES ${Header_Files})
 set(Header_Files__functions
     "functions.hpp"
     "looped.hpp"
+    "looped_vals.hpp"
     "player.hpp"
     "utils.hpp"
     "vehicle.hpp"
+    "world.hpp"
 )
 source_group("Header Files\\functions" FILES ${Header_Files__functions})
 
 set(Header_Files__gta
+    "ipls.hpp"
+    "key_names.hpp"
     "net_game_event.hpp"
+    "peds.hpp"
+    "sessions.hpp"
+    "weapons.hpp"
 )
 source_group("Header Files\\gta" FILES ${Header_Files__gta})
 
@@ -51,6 +61,7 @@ set(Source_Files
     "crossmapping.cpp"
     "hooking.cpp"
     "input_hook.cpp"
+    "json_service.cpp"
     "log.cpp"
     "main.cpp"
     "native_invoker.cpp"
@@ -76,11 +87,10 @@ add_library(${PROJECT_NAME} SHARED ${ALL_FILES})
 target_precompile_headers(${PROJECT_NAME} PRIVATE
     "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/stdafx.hpp>"
 )
-
-use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 ################################################################################
 # Includes for CMake from *.props
 ################################################################################
+use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 set(ROOT_NAMESPACE Pico)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -107,13 +117,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 ################################################################################
 target_include_directories(${PROJECT_NAME} PUBLIC
     "$<$<CONFIG:Release>:"
-        "${PROJECT_SOURCE_DIR}/MinHook/include;"
-        "${gtav_classes_SOURCE_DIR}"
+        "${gtav_classes_SOURCE_DIR};"
+        "${json_SOURCE_DIR}/single_include"
     ">"
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${gtav_classes_SOURCE_DIR}"
+    "${json_SOURCE_DIR}/single_include"
 )
 
 ################################################################################
@@ -169,19 +180,5 @@ endif()
 ################################################################################
 # Dependencies
 ################################################################################
-set(ADDITIONAL_LIBRARY_DEPENDENCIES
-    "$<$<CONFIG:Debug>:"
-        "${PROJECT_SOURCE_DIR}\\MinHook\\lib\\minhook.x64.lib"
-    ">"
-    "$<$<CONFIG:Release>:"
-        "${PROJECT_SOURCE_DIR}\\MinHook\\lib\\minhook.x64.lib"
-    ">"
-)
 target_link_libraries(${PROJECT_NAME} PUBLIC "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
-
-target_link_directories(${PROJECT_NAME} PUBLIC
-    "$<$<CONFIG:Debug>:"
-        "$(ProjectDir)MinHook\\lib"
-    ">"
-)
-
+target_link_libraries(${PROJECT_NAME} PRIVATE minhook)

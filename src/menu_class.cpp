@@ -1,26 +1,27 @@
 #include "stdafx.hpp"
 #include "menu_class.hpp"
-#include "input_hook.hpp"
+
+using namespace pico;
 
 namespace
 {
-	bool load_texture_dict(std::string dict_name)
+	bool load_texture_dict(std::string_view dict_name)
 	{
-		while (!GRAPHICS::HAS_STREAMED_TEXTURE_DICT_LOADED(dict_name.c_str()))
+		while (!GRAPHICS::HAS_STREAMED_TEXTURE_DICT_LOADED(dict_name.data()))
 		{
-			GRAPHICS::REQUEST_STREAMED_TEXTURE_DICT(dict_name.c_str(), true);
+			GRAPHICS::REQUEST_STREAMED_TEXTURE_DICT(dict_name.data(), true);
 			WAIT(0);
 		}
 
-		return GRAPHICS::HAS_STREAMED_TEXTURE_DICT_LOADED(dict_name.c_str());
+		return GRAPHICS::HAS_STREAMED_TEXTURE_DICT_LOADED(dict_name.data());
 	}
 }
 
 namespace menu
 {
-	namespace Drawing
+	namespace drawing
 	{
-		void text(const char* text, RGBAF rgbaf, Vector2 position, SizeVector size, bool center, bool right)
+		void text(std::string_view text, RGBAF rgbaf, Vector2 position, SizeVector size, bool center, bool right)
 		{
 			HUD::SET_TEXT_CENTRE(center);
 			HUD::SET_TEXT_RIGHT_JUSTIFY(right);
@@ -28,14 +29,14 @@ namespace menu
 			HUD::SET_TEXT_FONT(rgbaf.f);
 			HUD::SET_TEXT_SCALE(size.w, size.h);
 			HUD::BEGIN_TEXT_COMMAND_DISPLAY_TEXT("STRING");
-			HUD::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(text);
+			HUD::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(text.data());
 			HUD::END_TEXT_COMMAND_DISPLAY_TEXT(position.x, position.y, NULL);
 		}
 
-		void sprite(std::string streamedtexture, std::string textureName, float x, float y, float width, float height, float rotation, int r, int g, int b, int a)
+		void sprite(std::string_view dict, std::string_view textureName, float x, float y, float width, float height, float rotation, RGBA rgba)
 		{
-			if (load_texture_dict(streamedtexture.c_str()))
-				GRAPHICS::DRAW_SPRITE(streamedtexture.c_str(), textureName.c_str(), x, y, width, height, rotation, r, g, b, a, NULL, NULL);
+			if (load_texture_dict(dict))
+				GRAPHICS::DRAW_SPRITE(dict.data(), textureName.data(), x, y, width, height, rotation, rgba.r, rgba.g, rgba.b, rgba.a, NULL, NULL);
 		}
 
 		void rect(RGBA rgba, Vector2 position, SizeVector size)
@@ -46,57 +47,34 @@ namespace menu
 
 	namespace settings
 	{
-		float menuX = 0.85f;
-		float menuWidth = 0.21f;
-		bool selectPressed = false;
-		bool leftPressed = false;
-		bool rightPressed = false;
-		int maxVisOptions = 11;
-		int currentOption = 0;
-		int optionCount = 0;
-		SubMenus currentMenu;
-		SubMenus menuLevel = SubMenus::NOTHING;
-		std::array<int, 1000> optionsArray;
-		std::array<SubMenus, 1000> menusArray;
-
-		RGBAF TitleText{ 255, 255, 255, 255, 1 };
-		RGBA TitleBackground{ 3, 140, 252, 255 };
-		RGBAF SubmenuBarText{ 255, 255, 255, 255, 4 };
-		RGBA SubmenuBarBackground{ 0, 0, 0, 190 };
-		RGBA SubmenuRect{ 3, 140, 252, 255 };
-		RGBAF OptionUnselectedText{ 255, 255, 255, 255, 4 };
-		RGBAF OptionSelectedText{ 10, 10, 10, 255, 4 };
-		RGBA OptionUnselectedBackground{ 0, 0, 0, 160 };
-		RGBA OptionSelectedBackground{ 255, 255, 255, 255 };
-		RGBAF FooterText{ 255, 255, 255, 255, 4 };
-		RGBA FooterBackground{ 0, 0, 0, 220 };
-		RGBA FooterSprite{ 255, 255, 255, 255 };
-
-		int keyPressDelay = 160;
-		ULONGLONG keyPressPreviousTick = GetTickCount64();
-		const int openKey = VK_F4;
-		const int backKey = VK_BACK;
-		const int upKey = VK_UP;
-		const int downKey = VK_DOWN;
-		const int leftKey = VK_LEFT;
-		const int rightKey = VK_RIGHT;
-		const int selectKey = VK_RETURN;
+		float menu_x = .85f;
+		float menu_width = .21f;
+		int max_vis_options = 11;
+		int current_option = 1;
+		int previous_option = current_option;
+		int option_count = 0;
+		int seperator_count = 0;
+		submenus current_menu = submenus::MAIN;
+		submenus previous_menu = current_menu;
+		submenus menu_level = submenus::MAIN;
+		std::array<int, 1000> options_array;
+		std::array<submenus, 1000> menus_array;
+		bool menu_visible = false;
 	}
 
-	void title(const char* title)
+	void title(std::string_view title)
 	{
 		// Title Bar
-		Drawing::text("Pico", settings::TitleText, { settings::menuX, 0.095f - 0.035f }, { 0.85f, 0.85f }, true, false);
-		Drawing::rect(settings::TitleBackground, { settings::menuX, 0.1175f - 0.035f }, { settings::menuWidth, 0.085f });
+		drawing::text("Pico", g_json.m_settings.settings.theme.title_text, { settings::menu_x, .095f - .035f }, { .85f, .85f }, true, false);
+		drawing::rect(g_json.m_settings.settings.theme.title_background, { settings::menu_x, .1175f - .035f }, { settings::menu_width, .085f });
 
 		// Submenu Bar
-		Drawing::rect(settings::SubmenuBarBackground, { settings::menuX, 0.1415f }, { settings::menuWidth, 0.035f });
+		drawing::rect(g_json.m_settings.settings.theme.submenu_bar_background, { settings::menu_x, .1415f }, { settings::menu_width, .035f });
 		char BarText[64]{};
-		strncpy_s(BarText, sizeof(BarText), title, 64);
+		strncpy_s(BarText, sizeof(BarText), title.data(), 64);
 		std::transform(std::begin(BarText), std::end(BarText), std::begin(BarText), [](char c) { return static_cast<char>(toupper(c)); });
-		Drawing::text(BarText, settings::SubmenuBarText, { settings::menuX, 0.125f }, { 0.5f, 0.5f }, true, false);
+		drawing::text(BarText, g_json.m_settings.settings.theme.submenu_bar_text, { settings::menu_x, .125f }, { .5f, .5f }, true, false);
 
-		HUD::HIDE_HELP_TEXT_THIS_FRAME();
 		CAM::SET_CINEMATIC_BUTTON_ACTIVE(false);
 
 		const ControllerInputs controls[] = {
@@ -119,374 +97,565 @@ namespace menu
 			PAD::DISABLE_CONTROL_ACTION(ControlTypes::FRONTEND_CONTROL, control, true);
 	}
 
-	bool option(const char* option)
+	structs::button option(std::string_view option)
 	{
-		settings::optionCount++;
-		bool onThis = settings::currentOption == settings::optionCount;
+		settings::option_count++;
+		bool onThis = settings::current_option == settings::option_count;
 
-		if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
 		{
 			onThis
-				? Drawing::text(option, settings::OptionSelectedText, { settings::menuX - 0.1f, (settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false)
-				: Drawing::text(option, settings::OptionUnselectedText, { settings::menuX - 0.1f, (settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-			Drawing::rect(settings::OptionUnselectedBackground, { settings::menuX, (settings::optionCount) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+				? drawing::text(option, g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x - .1f, (settings::option_count) * .035f + .125f }, { .45f, .45f }, false, false)
+				: drawing::text(option, g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x - .1f, (settings::option_count) * .035f + .125f }, { .45f, .45f }, false, false);
+			drawing::rect(g_json.m_settings.settings.theme.option_unselected_background, { settings::menu_x, (settings::option_count) * .035f + .1415f }, { settings::menu_width, .035f });
 			
 			if (onThis)
-				Drawing::rect(settings::OptionSelectedBackground, { settings::menuX, (settings::optionCount) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+				drawing::rect(g_json.m_settings.settings.theme.option_selected_background, { settings::menu_x, (settings::option_count) * .035f + .1415f }, { settings::menu_width, .035f });
 		}
-		else if (settings::optionCount > (settings::currentOption - settings::maxVisOptions) && settings::optionCount <= settings::currentOption)
+		else if (settings::option_count > (settings::current_option - settings::max_vis_options) && settings::option_count <= settings::current_option)
 		{
 			onThis
-				? Drawing::text(option, settings::OptionSelectedText, { settings::menuX - 0.1f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false)
-				: Drawing::text(option, settings::OptionUnselectedText, { settings::menuX - 0.1f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-			Drawing::rect(settings::OptionUnselectedBackground, { settings::menuX,  (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
-			
+				? drawing::text(option, g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x - .1f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .125f }, { .45f, .45f }, false, false)
+				: drawing::text(option, g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x - .1f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .125f }, { .45f, .45f }, false, false);
+			drawing::rect(g_json.m_settings.settings.theme.option_unselected_background, { settings::menu_x,  (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .1415f }, { settings::menu_width, .035f });
+
 			if (onThis)
-				Drawing::rect(settings::OptionSelectedBackground, { settings::menuX,  (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+				drawing::rect(g_json.m_settings.settings.theme.option_selected_background, { settings::menu_x,  (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .1415f }, { settings::menu_width, .035f });
 		}
 
-		return onThis && settings::selectPressed;
+		return { onThis, onThis && keys::select_pressed };
 	}
 
-	bool option(const char* option, bool& toggle_bool)
+	structs::button option(std::string_view option, bool& toggle_bool)
 	{
-		settings::optionCount++;
-		bool onThis = settings::currentOption == settings::optionCount;
+		settings::option_count++;
+		bool onThis = settings::current_option == settings::option_count;
 
-		if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
 		{
 			onThis
-				? Drawing::text(option, settings::OptionSelectedText, { settings::menuX - 0.1f, (settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false)
-				: Drawing::text(option, settings::OptionUnselectedText, { settings::menuX - 0.1f, (settings::optionCount) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-			Drawing::rect(settings::OptionUnselectedBackground, { settings::menuX, (settings::optionCount) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+				? drawing::text(option, g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x - .1f, (settings::option_count) * .035f + .125f }, { .45f, .45f }, false, false)
+				: drawing::text(option, g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x - .1f, (settings::option_count) * .035f + .125f }, { .45f, .45f }, false, false);
+			drawing::rect(g_json.m_settings.settings.theme.option_unselected_background, { settings::menu_x, (settings::option_count) * .035f + .1415f }, { settings::menu_width, .035f });
 
 			if (onThis)
-				Drawing::rect(settings::OptionSelectedBackground, { settings::menuX, (settings::optionCount) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+				drawing::rect(g_json.m_settings.settings.theme.option_selected_background, { settings::menu_x, (settings::option_count) * .035f + .1415f }, { settings::menu_width, .035f });
 		}
-		else if (settings::optionCount > (settings::currentOption - settings::maxVisOptions) && settings::optionCount <= settings::currentOption)
+		else if (settings::option_count > (settings::current_option - settings::max_vis_options) && settings::option_count <= settings::current_option)
 		{
 			onThis
-				? Drawing::text(option, settings::OptionSelectedText, { settings::menuX - 0.1f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false)
-				: Drawing::text(option, settings::OptionUnselectedText, { settings::menuX - 0.1f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-			Drawing::rect(settings::OptionUnselectedBackground, { settings::menuX,  (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+				? drawing::text(option, g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x - .1f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .125f }, { .45f, .45f }, false, false)
+				: drawing::text(option, g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x - .1f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .125f }, { .45f, .45f }, false, false);
+			drawing::rect(g_json.m_settings.settings.theme.option_unselected_background, { settings::menu_x,  (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .1415f }, { settings::menu_width, .035f });
 
 			if (onThis)
-				Drawing::rect(settings::OptionSelectedBackground, { settings::menuX,  (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+				drawing::rect(g_json.m_settings.settings.theme.option_selected_background, { settings::menu_x,  (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .1415f }, { settings::menu_width, .035f });
 		}
 
-		toggle_bool = onThis && settings::selectPressed;
-		return toggle_bool;
+		toggle_bool = onThis && keys::select_pressed;
+		return { onThis, toggle_bool };
 	}
 
-	bool menu_option(const char* option_name, SubMenus newSub)
+	void seperator()
+	{
+		settings::option_count++; // allows for the option to actually exist
+		settings::seperator_count++;
+
+		if (settings::current_option == settings::option_count)
+		{
+			if (InputHook::get_key_state(pico::g_custom_input.get_key(InputHook::up_key)))
+				menu_level_handler::move_option(settings::current_option - 1);
+			else
+				menu_level_handler::move_option(settings::current_option + 1);
+		}
+
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			drawing::rect(g_json.m_settings.settings.theme.seperator_background, { settings::menu_x, (settings::option_count) * .035f + .1415f }, { settings::menu_width, .035f });
+		
+		else if (settings::option_count > (settings::current_option - settings::max_vis_options) && settings::option_count <= settings::current_option)
+			drawing::rect(g_json.m_settings.settings.theme.seperator_background, { settings::menu_x,  (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .1415f }, { settings::menu_width, .035f });
+	}
+
+	structs::button menu_option(std::string_view option_name, submenus destination)
 	{
 		option(option_name);
+		structs::button return_val{ false, false };
 
-		if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
-			Drawing::rect(settings::SubmenuRect, { settings::menuX + (settings::menuWidth / 2) - 0.002f, (settings::optionCount) * 0.035f + 0.1415f }, { 0.004f, 0.035f });
-		else if (settings::optionCount > settings::currentOption - settings::maxVisOptions && settings::optionCount <= settings::currentOption)
-			Drawing::rect(settings::SubmenuRect, { settings::menuX + (settings::menuWidth / 2) - 0.002f,  (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.1415f }, { 0.004f, 0.035f });
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			drawing::rect(g_json.m_settings.settings.theme.submenu_rect, { settings::menu_x + (settings::menu_width / 2) - .002f, (settings::option_count) * .035f + .1415f }, { .004f, .035f });
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+			drawing::rect(g_json.m_settings.settings.theme.submenu_rect, { settings::menu_x + (settings::menu_width / 2) - .002f,  (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .1415f }, { .004f, .035f });
 
-		if (settings::optionCount == settings::currentOption && settings::selectPressed)
+		if (settings::option_count == settings::current_option)
+			return_val.hovered = true;
+
+		if (settings::option_count == settings::current_option && keys::select_pressed)
 		{
-			MenuLevelHandler::MoveMenu(newSub);
-			return true;
+			menu_level_handler::move_menu(destination);
+			return_val.clicked = true;
 		}
-		return false;
+		return return_val;
 	}
 
-	bool bool_option(const char* option_name, bool& toggle_bool)
+	structs::button bool_option(std::string_view option_name, bool& toggle_bool)
 	{
 		option(option_name);
+		structs::button return_val{ false, false };
 
 		if (toggle_bool)
 		{
-			if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
-				Drawing::sprite("commonmenu", "common_medal", settings::menuX + 0.068f, (settings::optionCount * 0.035f + 0.141f), 0.014063f, 0.025f, 0, settings::SubmenuRect.r, settings::SubmenuRect.g, settings::SubmenuRect.b, settings::SubmenuRect.a);
-			else if (settings::optionCount > settings::currentOption - settings::maxVisOptions && settings::optionCount <= settings::currentOption)
-				Drawing::sprite("commonmenu", "common_medal", settings::menuX + 0.068f, ((settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.141f), 0.014063f, 0.025f, 0, settings::SubmenuRect.r, settings::SubmenuRect.g, settings::SubmenuRect.b, settings::SubmenuRect.a);
+			if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+				drawing::sprite("commonmenu", "common_medal", settings::menu_x + .068f, (settings::option_count * .035f + .141f), .014063f, .025f, 0, g_json.m_settings.settings.theme.submenu_rect);
+			else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+				drawing::sprite("commonmenu", "common_medal", settings::menu_x + .068f, ((settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .141f), .014063f, .025f, 0, g_json.m_settings.settings.theme.submenu_rect);
 		}
 		else
 		{
-			if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
-				Drawing::sprite("commonmenu", "common_medal", settings::menuX + 0.068f, (settings::optionCount * 0.035f + 0.141f), 0.014063f, 0.025f, 0, 102, 96, 96, 255);
-			else if (settings::optionCount > settings::currentOption - settings::maxVisOptions && settings::optionCount <= settings::currentOption)
-				Drawing::sprite("commonmenu", "common_medal", settings::menuX + 0.068f, ((settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.141f), 0.014063f, 0.025f, 0, 102, 96, 96, 255);
+			if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+				drawing::sprite("commonmenu", "common_medal", settings::menu_x + .068f, (settings::option_count * .035f + .141f), .014063f, .025f, 0, { 102, 96, 96, 255 });
+			else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+				drawing::sprite("commonmenu", "common_medal", settings::menu_x + .068f, ((settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .141f), .014063f, .025f, 0, { 102, 96, 96, 255 });
 		}
 
-		if (settings::optionCount == settings::currentOption && settings::selectPressed)
+		if (settings::option_count == settings::current_option)
+			return_val.hovered = true;
+
+		if (settings::option_count == settings::current_option && keys::select_pressed)
 		{
 			toggle_bool = !toggle_bool;
-			return true;
+			return_val.clicked = true;
 		}
 
-		return false;
+		return return_val;
 	}
 
-	bool int_option(const char* option_name, int& _int, int min, int max)
+	structs::button int_option(std::string_view option_name, int& out_int, int min, int max, int step)
 	{
 		option(option_name);
-		bool onThis = settings::currentOption == settings::optionCount;
+		bool onThis = settings::current_option == settings::option_count;
 
-		if (settings::optionCount == settings::currentOption)
+		if (settings::option_count == settings::current_option)
 		{
-			if (settings::leftPressed)
+			if (keys::left_pressed)
+				out_int <= min
+					? out_int = max
+					: out_int -= step;
+
+			if (keys::right_pressed)
+				out_int >= max
+					? out_int = min
+					: out_int += step;
+		}
+
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			onThis
+				? drawing::text(std::format("<{}>", std::to_string(out_int)), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + .068f, settings::option_count * .035f + .125f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", std::to_string(out_int)), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + .068f, settings::option_count * .035f + .125f }, { .5f, .5f }, true, false);
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+			onThis
+				? drawing::text(std::format("<{}>", std::to_string(out_int)), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + .068f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", std::to_string(out_int)), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + .068f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false);
+
+		return { onThis, onThis && keys::select_pressed };
+	}
+	
+	structs::button int_option(std::string_view option_name, int& out_int, int step)
+	{
+		option(option_name);
+		bool onThis = settings::current_option == settings::option_count;
+
+		if (settings::option_count == settings::current_option)
+		{
+			if (keys::left_pressed)
+				out_int -= step;
+
+			if (keys::right_pressed)
+				out_int += step;
+		}
+
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			onThis
+				? drawing::text(std::format("<{}>", std::to_string(out_int)), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + .068f, settings::option_count * .035f + .125f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", std::to_string(out_int)), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + .068f, settings::option_count * .035f + .125f }, { .5f, .5f }, true, false);
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+			onThis
+				? drawing::text(std::format("<{}>", std::to_string(out_int)), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + .068f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", std::to_string(out_int)), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + .068f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false);
+
+		return { onThis, onThis && keys::select_pressed };
+	}
+
+	structs::button float_option(std::string_view option_name, float& out_float, float min, float max, float step, int precision)
+	{
+		option(option_name);
+		bool onThis = settings::current_option == settings::option_count;
+
+		if (settings::option_count == settings::current_option)
+		{
+			if (keys::left_pressed)
+				out_float <= min
+					? out_float = max
+					: out_float -= step;
+
+			if (keys::right_pressed)
+				out_float >= max
+					? out_float = min
+					: out_float += step;
+
+			out_float < min
+				? out_float = max
+				: out_float > max
+					? out_float = min
+					: NULL;
+		}
+
+		std::string float_str = std::to_string(out_float);
+		if (std::size_t dot_ind = float_str.find("."); dot_ind != std::string::npos)
+			float_str = float_str.substr(0, (dot_ind + 1) + precision);
+
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			onThis
+				? drawing::text(std::format("<{}>", float_str), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + .068f, settings::option_count * .035f + .125f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", float_str), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + .068f, settings::option_count * .035f + .125f }, { .5f, .5f }, true, false);
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+			onThis
+				? drawing::text(std::format("<{}>", float_str), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + .068f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", float_str), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + .068f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false);
+
+		return { onThis, onThis && keys::select_pressed };
+	}
+	
+	structs::button float_option(std::string_view option_name, float& out_float, float step, int precision)
+	{
+		option(option_name);
+		bool onThis = settings::current_option == settings::option_count;
+
+		if (settings::option_count == settings::current_option)
+		{
+			if (keys::left_pressed)
+				out_float -= step;
+
+			if (keys::right_pressed)
+				out_float += step;
+		}
+
+		std::string float_str = std::to_string(out_float);
+		if (std::size_t dot_ind = float_str.find("."); dot_ind != std::string::npos)
+			float_str = float_str.substr(0, (dot_ind + 1) + precision);
+
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			onThis
+				? drawing::text(std::format("<{}>", float_str), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + .068f, settings::option_count * .035f + .125f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", float_str), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + .068f, settings::option_count * .035f + .125f }, { .5f, .5f }, true, false);
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+			onThis
+				? drawing::text(std::format("<{}>", float_str), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + .068f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", float_str), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + .068f, (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false);
+
+		return { onThis, onThis && keys::select_pressed };
+	}
+
+	template <>
+	structs::button vector_option(
+		std::string_view option_name, const std::vector<std::string_view>& list,
+		std::size_t& out_idx, float offset_from_normal,
+		std::function<std::string_view(std::string_view)> callback)
+	{
+		option(option_name);
+		bool onThis = settings::current_option == settings::option_count;
+
+		if (settings::option_count == settings::current_option)
+		{
+			if (keys::left_pressed)
 			{
-				if (_int != min)
-					_int--;
-				else
-					_int = max;
-			}
-
-			if (settings::rightPressed)
-				_int < max ? _int++ : _int = min;
-		}
-
-		if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
-			onThis
-				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
-		else if (settings::optionCount > settings::currentOption - settings::maxVisOptions && settings::optionCount <= settings::currentOption)
-			onThis
-				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
-
-		return onThis && settings::selectPressed;
-	}
-
-	bool int_option(const char* option_name, int& _int, int min, int max, int step)
-	{
-		option(option_name);
-		bool onThis = settings::currentOption == settings::optionCount;
-
-		if (settings::optionCount == settings::currentOption)
-		{
-			if (settings::leftPressed)
-			{
-				if (_int != min)
-					_int -= step;
-				else
-					_int = max;
-			}
-
-			if (settings::rightPressed)
-				_int < max ? _int += step : _int = min;
-		}
-
-		if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
-			onThis
-				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
-		else if (settings::optionCount > settings::currentOption - settings::maxVisOptions && settings::optionCount <= settings::currentOption)
-			onThis
-				? Drawing::text(("<" + std::to_string(_int) + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(_int) + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
-
-		return onThis && settings::selectPressed;
-	}
-
-	bool float_option(const char* option_name, float& _float, float min, float max)
-	{
-		option(option_name);
-		bool onThis = settings::currentOption == settings::optionCount;
-
-		if (settings::optionCount == settings::currentOption)
-		{
-			if (settings::leftPressed)
-				_float <= min ? _float = max : _float -= 0.1f;
-			if (settings::rightPressed)
-				_float >= max ? _float = min : _float += 0.1f;
-
-			_float < min ? _float = max : _float > max ? _float = min : NULL;
-		}
-
-		std::string String = std::to_string(_float);
-		String = String.substr(0, 3);
-
-		if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
-			onThis
-				? Drawing::text(("<" + String + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + String + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
-		else if (settings::optionCount > settings::currentOption - settings::maxVisOptions && settings::optionCount <= settings::currentOption)
-			onThis
-				? Drawing::text(("<" + String + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + String + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
-
-		return onThis && settings::selectPressed;
-	}
-
-	bool float_option(const char* option_name, float& _float, float min, float max, float step)
-	{
-		option(option_name);
-		bool onThis = settings::currentOption == settings::optionCount;
-
-		if (settings::optionCount == settings::currentOption)
-		{
-			if (settings::leftPressed)
-				_float <= min ? _float = max : _float -= step;
-
-			if (settings::rightPressed)
-				_float >= max ? _float = min : _float += step;
-
-			_float < min ? _float = max : _float > max ? _float = min : NULL;
-		}
-		std::string String = std::to_string(_float);
-		String = String.substr(0, 3);
-
-		if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
-			onThis
-				? Drawing::text(("<" + String + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + String + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
-		else if (settings::optionCount > settings::currentOption - settings::maxVisOptions && settings::optionCount <= settings::currentOption)
-			onThis
-				? Drawing::text(("<" + String + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + String + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
-
-		return onThis && settings::selectPressed;
-	}
-
-	template<typename T>
-	bool list_option(const char* option_name, std::vector<T> list, int& selected_option)
-	{
-		option(option_name);
-		bool onThis = settings::currentOption == settings::optionCount;
-
-		if (settings::optionCount == settings::currentOption)
-		{
-			if (settings::leftPressed)
-			{
-				if (selected_option != 0)
-					selected_option--;
+				if (out_idx != 0)
+					out_idx--;
 				else 
-					selected_option = 0;
+					out_idx = list.size() - 1;
 			}
 
-			if (settings::rightPressed)
-				selected_option < static_cast<int>(list.size() - 1) ? selected_option++ : selected_option = 0;
+			if (keys::right_pressed)
+				out_idx < (list.size() - 1) ? out_idx++ : out_idx = 0;
 		}
 
-		if (settings::currentOption <= settings::maxVisOptions && settings::optionCount <= settings::maxVisOptions)
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
 			onThis
-				? Drawing::text(("<" + std::to_string(list[selected_option]) + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(list[selected_option]) + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, settings::optionCount * 0.035f + 0.125f }, { 0.5f, 0.5f }, true, false);
-		else if (settings::optionCount > settings::currentOption - settings::maxVisOptions && settings::optionCount <= settings::currentOption)
+				? drawing::text(std::format("<{}>", callback(list[out_idx])), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + (.068f - offset_from_normal), settings::option_count * .035f + .125f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", callback(list[out_idx])), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + (.068f - offset_from_normal), settings::option_count * .035f + .125f }, { .5f, .5f }, true, false);
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
 			onThis
-				? Drawing::text(("<" + std::to_string(list[selected_option]) + ">").c_str(), settings::OptionSelectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false)
-				: Drawing::text(("<" + std::to_string(list[selected_option]) + ">").c_str(), settings::OptionUnselectedText, { settings::menuX + 0.068f, (settings::optionCount - (settings::currentOption - settings::maxVisOptions)) * 0.035f + 0.12f }, { 0.5f, 0.5f }, true, false);
+				? drawing::text(std::format("<{}>", callback(list[out_idx])), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + (.068f - offset_from_normal), (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", callback(list[out_idx])), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + (.068f - offset_from_normal), (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false);
 
-		return onThis && settings::selectPressed;
+		return { onThis, onThis && keys::select_pressed };
+	}
+
+	template <>
+	structs::button vector_option(
+		std::string_view option_name, const std::vector<std::string>& list,
+		std::size_t& out_idx, float offset_from_normal,
+		std::function<std::string_view(std::string_view)> callback)
+	{
+		option(option_name);
+		bool onThis = settings::current_option == settings::option_count;
+
+		if (settings::option_count == settings::current_option)
+		{
+			if (keys::left_pressed)
+			{
+				if (out_idx != 0)
+					out_idx--;
+				else
+					out_idx = list.size() - 1;
+			}
+
+			if (keys::right_pressed)
+				out_idx < (list.size() - 1) ? out_idx++ : out_idx = 0;
+		}
+
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			onThis
+				? drawing::text(std::format("<{}>", callback(list[out_idx])), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + (.068f - offset_from_normal), settings::option_count * .035f + .125f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", callback(list[out_idx])), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + (.068f - offset_from_normal), settings::option_count * .035f + .125f }, { .5f, .5f }, true, false);
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+			onThis
+				? drawing::text(std::format("<{}>", callback(list[out_idx])), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + (.068f - offset_from_normal), (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", callback(list[out_idx])), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + (.068f - offset_from_normal), (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false);
+
+		return { onThis, onThis && keys::select_pressed };
+	}
+
+	structs::button object_vector_option(
+		std::string_view option_name, const std::vector<structs::spawned_obj>& list,
+		std::size_t& out_idx, float offset_from_normal,
+		std::function<std::string_view(structs::spawned_obj)> callback)
+	{
+		option(option_name);
+		bool onThis = settings::current_option == settings::option_count;
+		std::string_view text_val = "NULL";
+
+		if (settings::option_count == settings::current_option)
+		{
+			if (keys::left_pressed)
+			{
+				if (out_idx != 0)
+					out_idx--;
+				else
+					out_idx = list.size() - 1;
+			}
+
+			if (keys::right_pressed)
+				out_idx < (list.size() - 1) ? out_idx++ : out_idx = 0;
+		}
+
+		try
+		{
+			text_val = callback(list[out_idx]);
+		}
+		catch (...) {}
+
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			onThis
+				? drawing::text(std::format("<{}>", text_val), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + (.068f - offset_from_normal), settings::option_count * .035f + .125f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", text_val), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + (.068f - offset_from_normal), settings::option_count * .035f + .125f }, { .5f, .5f }, true, false);
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+			onThis
+				? drawing::text(std::format("<{}>", text_val), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + (.068f - offset_from_normal), (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", text_val), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + (.068f - offset_from_normal), (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false);
+
+		return { onThis, onThis && keys::select_pressed };
+	}
+	
+	structs::button ped_vector_option(
+		std::string_view option_name, const std::vector<structs::spawned_ped>& list,
+		std::size_t& out_idx, float offset_from_normal,
+		std::function<std::string_view(structs::spawned_ped)> callback)
+	{
+		option(option_name);
+		bool onThis = settings::current_option == settings::option_count;
+		std::string_view text_val = "NULL";
+
+		if (settings::option_count == settings::current_option)
+		{
+			if (keys::left_pressed)
+			{
+				if (out_idx != 0)
+					out_idx--;
+				else
+					out_idx = list.size() - 1;
+			}
+
+			if (keys::right_pressed)
+				out_idx < (list.size() - 1) ? out_idx++ : out_idx = 0;
+		}
+
+		try
+		{
+			text_val = callback(list[out_idx]);
+		}
+		catch (...) {}
+
+		if (settings::current_option <= settings::max_vis_options && settings::option_count <= settings::max_vis_options)
+			onThis
+				? drawing::text(std::format("<{}>", text_val), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + (.068f - offset_from_normal), settings::option_count * .035f + .125f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", text_val), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + (.068f - offset_from_normal), settings::option_count * .035f + .125f }, { .5f, .5f }, true, false);
+		else if (settings::option_count > settings::current_option - settings::max_vis_options && settings::option_count <= settings::current_option)
+			onThis
+				? drawing::text(std::format("<{}>", text_val), g_json.m_settings.settings.theme.option_selected_text, { settings::menu_x + (.068f - offset_from_normal), (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false)
+				: drawing::text(std::format("<{}>", text_val), g_json.m_settings.settings.theme.option_unselected_text, { settings::menu_x + (.068f - offset_from_normal), (settings::option_count - (settings::current_option - settings::max_vis_options)) * .035f + .12f }, { .5f, .5f }, true, false);
+
+		return { onThis, onThis && keys::select_pressed };
 	}
 
 	void end()
 	{
-		if (settings::optionCount >= settings::maxVisOptions)
-		{
-			Drawing::text("PAID", settings::FooterText, { settings::menuX - (settings::menuWidth / 2) + 0.005f, (settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-			Drawing::text((std::to_string(settings::currentOption) + "/" + std::to_string(settings::optionCount)).c_str(), settings::FooterText, { settings::menuX + (settings::menuWidth / 2) - 0.03f, (settings::maxVisOptions + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-			Drawing::rect(settings::FooterBackground, { settings::menuX, (settings::maxVisOptions + 1) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+		int actual_option_count = settings::option_count - settings::seperator_count;
+		//!? TODO: ugh fix this garbage when seperators exist
+		int actual_current_option = (settings::current_option);
 
-			if (settings::currentOption == 1)
-				Drawing::sprite("commonmenu", "arrowright", settings::menuX, ((settings::maxVisOptions + 1) * 0.035f + 0.142f), 0.010f, 0.0175f, 90, settings::FooterSprite.r, settings::FooterSprite.g, settings::FooterSprite.b, settings::FooterSprite.a);
-			else if (settings::currentOption == settings::optionCount)
-				Drawing::sprite("commonmenu", "arrowright", settings::menuX, ((settings::maxVisOptions + 1) * 0.035f + 0.142f), 0.010f, 0.0175f, 270, settings::FooterSprite.r, settings::FooterSprite.g, settings::FooterSprite.b, settings::FooterSprite.a);
+		if (settings::option_count >= settings::max_vis_options)
+		{
+			drawing::text("unPAID", g_json.m_settings.settings.theme.footer_text, { settings::menu_x - (settings::menu_width / 2) + .005f, (settings::max_vis_options + 1) * .035f + .125f }, { .45f, .45f }, false, false);
+			drawing::text(std::format("{}/{}", actual_current_option, actual_option_count), g_json.m_settings.settings.theme.footer_text, { settings::menu_x + (settings::menu_width / 2) - .03f, (settings::max_vis_options + 1) * .035f + .125f }, { .45f, .45f }, false, false);
+			drawing::rect(g_json.m_settings.settings.theme.footer_background, { settings::menu_x, (settings::max_vis_options + 1) * .035f + .1415f }, { settings::menu_width, .035f });
+
+			if (actual_current_option == 1)
+				drawing::sprite("commonmenu", "arrowright", settings::menu_x, ((settings::max_vis_options + 1) * .035f + .142f), .010f, .0175f, 90, g_json.m_settings.settings.theme.footer_sprite);
+			else if (actual_current_option == actual_option_count)
+				drawing::sprite("commonmenu", "arrowright", settings::menu_x, ((settings::max_vis_options + 1) * .035f + .142f), .010f, .0175f, 270, g_json.m_settings.settings.theme.footer_sprite);
 			else
-				Drawing::sprite("commonmenu", "shop_arrows_upanddown", settings::menuX, ((settings::maxVisOptions + 1) * 0.035f + 0.140f), 0.020f, 0.035f, 180, settings::FooterSprite.r, settings::FooterSprite.g, settings::FooterSprite.b, settings::FooterSprite.a);
+				drawing::sprite("commonmenu", "shop_arrows_upanddown", settings::menu_x, ((settings::max_vis_options + 1) * .035f + .140f), .020f, .035f, 180, g_json.m_settings.settings.theme.footer_sprite);
 		}
-		else if (settings::optionCount > 0)
+		else if (settings::option_count > 0)
 		{
-			Drawing::text("PAID", settings::FooterText, { settings::menuX - (settings::menuWidth / 2) + 0.005f, (settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-			Drawing::text((std::to_string(settings::currentOption) + "/" + std::to_string(settings::optionCount)).c_str(), settings::FooterText, { settings::menuX + (settings::menuWidth / 2) - 0.03f, (settings::optionCount + 1) * 0.035f + 0.125f }, { 0.45f, 0.45f }, false, false);
-			Drawing::rect(settings::FooterBackground, { settings::menuX, (settings::optionCount + 1) * 0.035f + 0.1415f }, { settings::menuWidth, 0.035f });
+			drawing::text("unPAID", g_json.m_settings.settings.theme.footer_text, { settings::menu_x - (settings::menu_width / 2) + .005f, (actual_option_count + 1) * .035f + .125f }, { .45f, .45f }, false, false);
+			drawing::text(std::format("{}/{}", actual_current_option, actual_option_count), g_json.m_settings.settings.theme.footer_text, { settings::menu_x + (settings::menu_width / 2) - .03f, (actual_option_count + 1) * .035f + .125f }, { .45f, .45f }, false, false);
+			drawing::rect(g_json.m_settings.settings.theme.footer_background, { settings::menu_x, (actual_option_count + 1) * .035f + .1415f }, { settings::menu_width, .035f });
 
-			if (settings::currentOption == 1 && settings::optionCount > 1)
-				Drawing::sprite("commonmenu", "arrowright", settings::menuX, ((settings::optionCount + 1) * 0.035f + 0.142f), 0.010f, 0.0175f, 90, settings::FooterSprite.r, settings::FooterSprite.g, settings::FooterSprite.b, settings::FooterSprite.a);
-			else if (settings::currentOption == settings::optionCount && settings::optionCount > 1)
-				Drawing::sprite("commonmenu", "arrowright", settings::menuX, ((settings::optionCount + 1) * 0.035f + 0.142f), 0.010f, 0.0175f, 270, settings::FooterSprite.r, settings::FooterSprite.g, settings::FooterSprite.b, settings::FooterSprite.a);
+			if (actual_current_option == 1 && actual_option_count > 1)
+				drawing::sprite("commonmenu", "arrowright", settings::menu_x, ((actual_option_count + 1) * .035f + .142f), .010f, .0175f, 90, g_json.m_settings.settings.theme.footer_sprite);
+			else if (actual_current_option == actual_option_count && actual_option_count > 1)
+				drawing::sprite("commonmenu", "arrowright", settings::menu_x, ((actual_option_count + 1) * .035f + .142f), .010f, .0175f, 270, g_json.m_settings.settings.theme.footer_sprite);
 			else
-				Drawing::sprite("commonmenu", "shop_arrows_upanddown", settings::menuX, ((settings::optionCount + 1) * 0.035f + 0.140f), 0.020f, 0.035f, 180, settings::FooterSprite.r, settings::FooterSprite.g, settings::FooterSprite.b, settings::FooterSprite.a);
+				drawing::sprite("commonmenu", "shop_arrows_upanddown", settings::menu_x, ((actual_option_count + 1) * .035f + .140f), .020f, .035f, 180, g_json.m_settings.settings.theme.footer_sprite);
 		}
 	}
 	
 	void reset_optioncount()
 	{
-		settings::optionCount = 0;
+		settings::option_count = 0;
+		settings::seperator_count = 0;
+	}
+
+	namespace keys
+	{
+		bool select_pressed = false;
+		bool left_pressed = false;
+		bool right_pressed = false;
+
+		int key_press_delay = 160;
+		ULONGLONG key_press_previous_tick = GetTickCount64();
+
+		// wrapper so that other files can have access to InputHook::get_key_state()
+		bool is_key_pressed(int key_code)
+		{
+			return InputHook::get_key_state(key_code);
+		}
 	}
 
 	namespace checks
 	{
 		void keys()
 		{
-			settings::selectPressed = false;
-			settings::leftPressed = false;
-			settings::rightPressed = false;
+			keys::select_pressed = false;
+			keys::left_pressed = false;
+			keys::right_pressed = false;
 
-			if ((GetTickCount64() - settings::keyPressPreviousTick) > settings::keyPressDelay)
+			if ((GetTickCount64() - keys::key_press_previous_tick) > keys::key_press_delay)
 			{
-				if (InputHook::get_key(settings::openKey))
+				if (InputHook::get_key_state(pico::g_custom_input.get_key(InputHook::open_key)))
 				{
-					settings::menuLevel == SubMenus::NOTHING
-						? MenuLevelHandler::MoveMenu(SubMenus::MAIN)
-						: MenuLevelHandler::CloseMenu();
+					settings::menu_visible = !settings::menu_visible;
+					settings::previous_menu = settings::current_menu;
+					settings::previous_option = settings::current_option;
 
-					settings::keyPressPreviousTick = GetTickCount64();
+					if (settings::menu_visible)
+					{
+						menu_level_handler::move_menu(settings::previous_menu);
+						menu_level_handler::move_option(settings::previous_option);
+					}
+
+					keys::key_press_previous_tick = GetTickCount64();
 				}
-				else if (InputHook::get_key(settings::backKey))
+				else if (InputHook::get_key_state(pico::g_custom_input.get_key(InputHook::back_key)))
 				{
-					if (settings::menuLevel > SubMenus::NOTHING)
-						MenuLevelHandler::BackMenu();
+					if (settings::menu_visible)
+						menu_level_handler::back_menu();
 
-					settings::keyPressPreviousTick = GetTickCount64();
+					keys::key_press_previous_tick = GetTickCount64();
 				}
-				else if (InputHook::get_key(settings::upKey))
+				else if (InputHook::get_key_state(pico::g_custom_input.get_key(InputHook::up_key)))
 				{
-					settings::currentOption > 1
-						? settings::currentOption--
-						: settings::currentOption = settings::optionCount;
+					settings::current_option > 1
+						? settings::current_option--
+						: settings::current_option = settings::option_count;
 
-					settings::keyPressPreviousTick = GetTickCount64();
+					keys::key_press_previous_tick = GetTickCount64();
 				}
-				else if (InputHook::get_key(settings::downKey))
+				else if (InputHook::get_key_state(pico::g_custom_input.get_key(InputHook::down_key)))
 				{
-					settings::currentOption < settings::optionCount
-						? settings::currentOption++
-						: settings::currentOption = 1;
+					settings::current_option < settings::option_count
+						? settings::current_option++
+						: settings::current_option = 1;
 
-					settings::keyPressPreviousTick = GetTickCount64();
+					keys::key_press_previous_tick = GetTickCount64();
 				}
+				//!? TODO: Remove this before shipping
+				else if (InputHook::get_key_state(VK_INSERT))
+					pico::g_running = false;
 
-				settings::leftPressed = InputHook::get_key(settings::leftKey);
-				settings::rightPressed = InputHook::get_key(settings::rightKey);
-				settings::selectPressed = InputHook::get_key(settings::selectKey);
-				settings::keyPressPreviousTick = (settings::leftPressed || settings::rightPressed || settings::selectPressed)
+				keys::left_pressed = InputHook::get_key_state(pico::g_custom_input.get_key(InputHook::left_key));
+				keys::right_pressed = InputHook::get_key_state(pico::g_custom_input.get_key(InputHook::right_key));
+				keys::select_pressed = InputHook::get_key_state(pico::g_custom_input.get_key(InputHook::select_key));
+				keys::key_press_previous_tick = (keys::left_pressed || keys::right_pressed || keys::select_pressed)
 					? GetTickCount64()
-					: settings::keyPressPreviousTick;
+					: keys::key_press_previous_tick;
 			}
 		}
 	}
 
-	namespace MenuLevelHandler
+	namespace menu_level_handler
 	{
-		void MoveMenu(SubMenus menu)
+		void move_menu(submenus menu)
 		{
-			settings::menusArray[settings::menuLevel] = settings::currentMenu;
-			settings::optionsArray[settings::menuLevel] = settings::currentOption;
-			settings::menuLevel = static_cast<SubMenus>(static_cast<int>(settings::menuLevel) + 1);
-			settings::currentMenu = menu;
-			settings::currentOption = 1;
+			settings::menus_array[settings::menu_level] = settings::current_menu;
+			settings::options_array[settings::menu_level] = settings::current_option;
+			settings::menu_level = static_cast<submenus>(static_cast<int>(settings::menu_level) + 1);
+			settings::current_menu = menu;
+			settings::current_option = 1;
 		}
 
-		void BackMenu()
+		void move_option(int option)
 		{
-			settings::menuLevel = static_cast<SubMenus>(static_cast<int>(settings::menuLevel) - 1);
-			settings::currentMenu = settings::menusArray[settings::menuLevel];
-			settings::currentOption = settings::optionsArray[settings::menuLevel];
+			settings::options_array[settings::menu_level] = 1;
+			settings::current_option = option;
 		}
 
-		void CloseMenu()
+		//!? TODO: fix the broken return
+		void back_menu()
 		{
-			settings::menuLevel = SubMenus::NOTHING;
-			settings::currentMenu = settings::menusArray[settings::menuLevel];
-			settings::currentOption = settings::optionsArray[settings::menuLevel];
+			if (settings::current_menu == submenus::MAIN)
+			{
+				settings::menu_visible = false;
+				settings::previous_menu = settings::current_menu;
+				settings::previous_option = settings::current_option;
+			}
+			else
+			{
+				settings::menu_level = static_cast<submenus>(static_cast<int>(settings::menu_level) - 1);
+				settings::current_menu = settings::menus_array[settings::menu_level];
+				settings::current_option = settings::options_array[settings::menu_level];
+			}
 		}
 	}
 }

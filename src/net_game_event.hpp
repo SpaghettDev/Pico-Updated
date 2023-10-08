@@ -171,7 +171,7 @@ public:
 		return g_hooking.m_ReadBitbufferArray(this, array, size, 0);
 	}
 
-	template<typename T>
+	template <typename T>
 	inline T Read(int length)
 	{
 		static_assert(sizeof(T) <= 4, "maximum of 32 bit read");
@@ -182,7 +182,7 @@ public:
 		return T(val);
 	}
 
-	template<typename T>
+	template <typename T>
 	inline T ReadSigned(int length)
 	{
 		static_assert(sizeof(T) <= 4, "maximum of 32 bit read");
@@ -193,7 +193,7 @@ public:
 		return T(val);
 	}
 
-	template<typename T>
+	template <typename T>
 	inline void Write(T data, int length)
 	{
 		static_assert(sizeof(T) <= 8, "maximum of 64 bit write");
@@ -201,7 +201,7 @@ public:
 		WriteQWord(static_cast<uint64_t>(data), length);
 	}
 
-	template<typename T>
+	template <typename T>
 	inline void WriteSigned(int length, T data)
 	{
 		int sign = data < 0;

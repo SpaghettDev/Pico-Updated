@@ -1,7 +1,4 @@
 // Hint files help the Visual Studio IDE interpret Visual C++ identifiers
 // such as names of functions and macros.
 // For more information see https://go.microsoft.com/fwlink/?linkid=865984
-#define LOG_MSG(msg, __VA_ARGS__) Log::log(LogLevel::MESSAGE, __FILE__, __LINE__, msg,##__VA_ARGS__)
-#define LOG_DEBUG(msg, ...) Log::log(LogLevel::DEBUG, __FILE__, __LINE__, msg, ##__VA_ARGS__)
-#define LOG_ERR(msg, ...) Log::log(LogLevel::ERROR_, __FILE__, __LINE__, msg, ##__VA_ARGS__)
-#define LOG_FATAL(msg, ...)  Log::log(LogLevel::FATAL, __FILE__, __LINE__, msg, ##__VA_ARGS__)
+#define ARE_ALL_PROOFS_DISABLED(plist) std::all_of(std::begin(plist), std::end(plist), [](looped_vals::proof_pair proof) { return !proof.toggle; })

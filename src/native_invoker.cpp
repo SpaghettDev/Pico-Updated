@@ -22,6 +22,10 @@ uint64_t* nativeCall()
 {
 	auto fn = Hooking::get_native_handler(g_hash);
 
+	auto log_ex = [](UINT64 hash, void* exaddr) -> void {
+		LOG(ERROR) << "executing native " << std::format("{:#06x}", g_hash) << " at address " << exaddr;
+	};
+
 	if (fn != 0)
 	{
 		static void* exceptionAddress;
@@ -33,7 +37,7 @@ uint64_t* nativeCall()
 		}
 		__except (exceptionAddress = (GetExceptionInformation())->ExceptionRecord->ExceptionAddress, EXCEPTION_EXECUTE_HANDLER)
 		{
-			LOG_ERR("executing native 0x%016llx at address %p.", g_hash, exceptionAddress);
+			log_ex(g_hash, exceptionAddress);
 		}
 	}
 

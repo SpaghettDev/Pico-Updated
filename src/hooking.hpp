@@ -1,7 +1,9 @@
 #pragma once
+#undef max
 #include "ped/CPedFactory.hpp"
 #include "network/CNetGamePlayer.hpp"
 #include "native_invoker.hpp"
+#include "types.hpp"
 
 class netEventMgr;
 class datBitBuffer;
@@ -18,7 +20,13 @@ using ReceivedEvent = void(
 	int buffer_size,
 	datBitBuffer* buffer
 );
-using SendEventAcknowledge = void(netEventMgr* event_manager, CNetGamePlayer* source_player, CNetGamePlayer* target_player, int event_index, int event_handled_bitset);
+using SendEventAcknowledge = void(
+	netEventMgr* event_manager,
+	CNetGamePlayer* source_player,
+	CNetGamePlayer* target_player,
+	int event_index,
+	int event_handled_bitset
+);
 
 // Bitbuffer functions
 using ReadBitbufferDWORD = bool(datBitBuffer* buffer, PVOID read, int bits);
@@ -38,8 +46,60 @@ class Hooking
 private:
 	static bool initialize_hooks();
 	static void find_patterns();
-
 public:
+	// Native function handler type
+	typedef void(__cdecl* NativeHandler)(scrNativeCallContext* context);
+	struct NativeRegistrationNew
+	{
+		uint64_t nextRegistration1;
+		uint64_t nextRegistration2;
+		Hooking::NativeHandler handlers[7];
+		uint32_t numEntries1;
+		uint32_t numEntries2;
+		uint64_t hashes;
+
+		inline NativeRegistrationNew* get_next_registration()
+		{
+			uintptr_t result = 0;
+			auto v5 = reinterpret_cast<uintptr_t>(&nextRegistration1);
+			auto v12 = 2i64;
+			auto v13 = v5 ^ nextRegistration2;
+			auto v14 = reinterpret_cast<char*>(&result) - v5;
+			do
+			{
+				*reinterpret_cast<DWORD*>(&v14[v5]) = static_cast<DWORD>(v13 ^ *reinterpret_cast<DWORD*>(v5));
+				v5 += 4i64;
+				--v12;
+			} while (v12);
+
+			return reinterpret_cast<NativeRegistrationNew*>(result);
+		}
+
+		inline uint32_t get_num_entries()
+		{
+			return static_cast<uint32_t>(reinterpret_cast<uintptr_t>(&numEntries1) ^ numEntries1 ^ numEntries2);
+		}
+
+		inline uint64_t get_hash(uint32_t index)
+		{
+
+			auto naddr = 16 * index + reinterpret_cast<uintptr_t>(&nextRegistration1) + 0x54;
+			auto v8 = 2i64;
+			uint64_t nResult = 0;
+			auto v11 = reinterpret_cast<char*>(&nResult) - naddr;
+			auto v10 = naddr ^ *reinterpret_cast<DWORD*>(naddr + 8);
+			do
+			{
+				*reinterpret_cast<DWORD*>(&v11[naddr]) = static_cast<DWORD>(v10 ^ *reinterpret_cast<DWORD*>(naddr));
+				naddr += 4i64;
+				--v8;
+			} while (v8);
+
+			return nResult;
+		}
+	};
+	static NativeHandler get_native_handler(uint64_t origHash);
+
 	static std::vector<LPVOID> m_Hooks;
 
 	static eGameState* m_GameState;
@@ -66,67 +126,14 @@ public:
 	static WriteBitbufferArray* m_WriteBitbufferArray;
 
 	static void init();
-	static void __declspec(noreturn) cleanup();
+	static void cleanup();
 	static void on_tick_init();
 	static bool hook_natives();
-
-	// Native function handler type
-	typedef void(__cdecl * NativeHandler)(scrNativeCallContext* context);
-	struct NativeRegistrationNew
-	{
-		uint64_t nextRegistration1;
-		uint64_t nextRegistration2;
-		Hooking::NativeHandler handlers[7];
-		uint32_t numEntries1;
-		uint32_t numEntries2;
-		uint64_t hashes;
-
-		inline NativeRegistrationNew* getNextRegistration()
-		{
-			uintptr_t result = 0;
-			auto v5 = reinterpret_cast<uintptr_t>(&nextRegistration1);
-			auto v12 = 2i64;
-			auto v13 = v5 ^ nextRegistration2;
-			auto v14 = reinterpret_cast<char*>(&result) - v5;
-			do
-			{
-				*reinterpret_cast<DWORD*>(&v14[v5]) = static_cast<DWORD>(v13 ^ *reinterpret_cast<DWORD*>(v5));
-				v5 += 4i64;
-				--v12;
-			} while (v12);
-
-			return reinterpret_cast<NativeRegistrationNew*>(result);
-		}
-
-		inline uint32_t getNumEntries()
-		{
-			return static_cast<uint32_t>(reinterpret_cast<uintptr_t>(&numEntries1) ^ numEntries1 ^ numEntries2);
-		}
-
-		inline uint64_t getHash(uint32_t index)
-		{
-
-			auto naddr = 16 * index + reinterpret_cast<uintptr_t>(&nextRegistration1) + 0x54;
-			auto v8 = 2i64;
-			uint64_t nResult = 0;
-			auto v11 = reinterpret_cast<char*>(&nResult) - naddr;
-			auto v10 = naddr ^ *reinterpret_cast<DWORD*>(naddr + 8);
-			do
-			{
-				*reinterpret_cast<DWORD*>(&v11[naddr]) = static_cast<DWORD>(v10 ^ *reinterpret_cast<DWORD*>(naddr));
-				naddr += 4i64;
-				--v8;
-			} while (v8);
-
-			return nResult;
-		}
-	};
-	static NativeHandler get_native_handler(uint64_t origHash);
 };
 
 extern Hooking g_hooking;
 
-void WAIT(DWORD ms);
+void WAIT(DWORD s);
 
 struct MinHookKeepalive
 {

@@ -1,27 +1,43 @@
 #include "stdafx.hpp"
-#include <time.h>
-#include <cstdio>
-
-char* Log::g_log_file_path;
-static char g_debug_log_file[MAX_PATH];
-
-#define CHARS_FOR_BUFF 4096
-#define CHARS_FOR_PARAMS 3500
+#include <iostream>
 
 namespace
 {
+#define ADD_COLOR(color) "\x1b[" + std::to_string(static_cast<int>(color)) + "m"
+
 	std::map<LogLevel, const char*> level_to_str
 	{
 		{ LogLevel::MESSAGE, "MESSAGE" },
+		{ LogLevel::WARNING, "WARNING" },
 		{ LogLevel::DEBUG, "DEBUG" },
-#undef ERROR
 		{ LogLevel::ERROR, "ERROR" },
 		{ LogLevel::FATAL, "FATAL" }
 	};
+
+	std::map<LogLevel, LogColor> level_to_color
+	{
+		{ LogLevel::MESSAGE, LogColor::CYAN },
+		{ LogLevel::WARNING, LogColor::YELLOW },
+		{ LogLevel::DEBUG, LogColor::BLUE },
+		{ LogLevel::ERROR, LogColor::RED },
+		{ LogLevel::FATAL, LogColor::RED }
+	};
+
+	// move to std::chrono::*
+	tm get_time()
+	{
+		tm current_tm;
+		time_t current_time = time(NULL);
+
+		localtime_s(&current_tm, &current_time);
+
+		return current_tm;
+	}
 }
 
 
-void Log::init()
+#pragma warning(disable: 4996) // getenv is apparently unsafe
+void Logger::init()
 {
 	if (AllocConsole())
 	{
@@ -29,91 +45,71 @@ void Log::init()
 		SetConsoleTitleW(L"Pico");
 		SetConsoleCP(CP_UTF8);
 		SetConsoleOutputCP(CP_UTF8);
+
+		if (m_console_handle = GetStdHandle(STD_OUTPUT_HANDLE); m_console_handle != nullptr)
+		{
+			DWORD console_mode;
+			GetConsoleMode(m_console_handle, &console_mode);
+			m_original_console_mode = console_mode;
+
+			// terminal like behaviour enable full color support
+			console_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
+			// prevent clicking in terminal from suspending our main thread
+			console_mode &= ~(ENABLE_QUICK_EDIT_MODE);
+
+			SetConsoleMode(m_console_handle, console_mode);
+		}
 	}
 
-	char log_buffer[CHARS_FOR_BUFF];
-	char timestamp[50];
-	struct tm current_tm;
-	time_t current_time = time(NULL);
+	std::string init_text = std::format("{}Initializing: Pico\n", LogCapture::pretext(LogLevel::MESSAGE));
 
-	localtime_s(&current_tm, &current_time);
-	sprintf_s(timestamp, "[%02d:%02d:%02d] %%s\n", current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec);
-	sprintf_s(log_buffer, timestamp, "Initialize: Pico Base");
+	std::cout << init_text << "\n";
 
-	{
-#pragma warning(disable: 4996) // getenv is apparently unsafe
-		std::string temp = std::format(R"({}\Pico\)", std::getenv("appdata"));
-		g_log_file_path = temp.data();
-	}
+	std::filesystem::create_directory(m_log_file_path);
 
-	std::filesystem::create_directory(g_log_file_path);
-
-	strcpy_s(g_debug_log_file, g_log_file_path);
-	strcat_s(g_debug_log_file, "Pico.log");
-
-	std::ofstream file_in(g_debug_log_file);
-	file_in << ""; // clear file
-	file_in << log_buffer;
+	std::ofstream file_in(m_log_file_path / "Pico.log");
+	// initialize the file by clearing it
+	file_in << "";
+	file_in << init_text;
 	file_in.close();
 
-	LOG_MSG(R"(
+	std::cout << R"(
 _______
 |  __ (_)
 | |__) |  ___ ___
 |  ___/ |/ __/ _ \
 | |   | | (_| (_) |
-|_|   |_|\___\___/)");
+|_|   |_|\___\___/)" << "\n";
 }
 
-void Log::log(LogLevel type, const char* file_name, int line, const char* fmt, ...)
+void Logger::cleanup()
 {
-	va_list va_alist;
-	char chLogBuff[CHARS_FOR_BUFF];
-	char chParameters[CHARS_FOR_PARAMS];
-	char szTimestamp[50];
-	struct tm current_tm;
-	time_t current_time = time(NULL);
-	std::string actual_file_name = file_name;
+	if (m_original_console_mode)
+		SetConsoleMode(m_console_handle, m_original_console_mode);
 
-	std::smatch sm;
+	fclose(stdout);
+	FreeConsole();
+}
 
-	if (std::regex_search(actual_file_name, sm, std::regex(R"(\\(\w+)\.(cpp|hpp|h))")))
-	{
-		actual_file_name = sm[0];
-		actual_file_name = actual_file_name.erase(0, 1);
-	}
-	else
-	{
-		if (!(actual_file_name.ends_with(".cpp") || actual_file_name.ends_with(".hpp") || actual_file_name.ends_with(".h")))
-			actual_file_name = "uknown";
-	}
+LogCapture::~LogCapture()
+{
+	m_stream << "\n";
 
-	localtime_s(&current_tm, &current_time);
-	sprintf_s(szTimestamp, "[%02d:%02d:%02d | %s:%i | %s] %%s\n",
-		current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec, actual_file_name.c_str(), line, level_to_str[type]
+	std::string text = pretext(m_last_log_level, m_last_source_location) + m_stream.str();
+
+	std::ofstream file_in(Logger::m_log_file_path / "Pico.log", std::ios::app);
+	file_in << text;
+	file_in.close();
+
+	std::cout << ADD_COLOR(level_to_color[m_last_log_level]) << text;
+}
+
+std::string LogCapture::pretext(LogLevel level, std::source_location location)
+{
+	tm current_tm = get_time();
+
+	return std::format("[{:02d}:{:02d}:{:02d} | {}:{} | {}] ",
+		current_tm.tm_hour, current_tm.tm_min, current_tm.tm_sec,
+		std::filesystem::path(location.file_name()).filename().string(), location.line(), level_to_str[level]
 	);
-
-	va_start(va_alist, fmt);
-	vsnprintf_s(chParameters, sizeof(chParameters), fmt, va_alist);
-	va_end(va_alist);
-	sprintf_s(chLogBuff, szTimestamp, chParameters);
-
-	OutputDebugStringA(chLogBuff);
-
-	std::ofstream file(g_debug_log_file, std::ios::app);
-	file << chLogBuff;
-	file.close();
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_BLUE);
-	char buffer[4096]{};
-	va_list args{};
-
-	va_start(args, fmt);
-	vsnprintf_s(buffer, sizeof(buffer), fmt, args);
-	printf(buffer);
-	printf("\n");
-	va_end(args);
-
-	if (type == LogLevel::FATAL)
-		pico::g_running = false;
 }

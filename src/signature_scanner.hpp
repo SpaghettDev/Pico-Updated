@@ -13,7 +13,7 @@ private:
 	uintptr_t m_end;
 	DWORD m_size;
 public:
-	template<typename TReturn, typename TOffset>
+	template <typename TReturn, typename TOffset>
 	TReturn* get_rva(TOffset rva)
 	{
 		return reinterpret_cast<TReturn*>(m_begin + rva);
@@ -44,17 +44,17 @@ namespace SignatureScanner
 		template <typename Function, typename = void>
 		struct is_invocable
 			: std::false_type
-		{ };
+		{};
 
 		template <typename Function>
 		struct is_invocable<Function, void_t<typename std::invoke_result<Function>::type>>
 			: std::true_type
-		{ };
+		{};
 
 		template <typename Function>
 		struct is_function_pointer
 			: std::bool_constant<std::is_pointer<Function>::value&& std::is_function<typename std::remove_pointer<typename std::decay<Function>::type>::type>::value>
-		{ };
+		{};
 	}
 
 	class handle
@@ -65,24 +65,24 @@ namespace SignatureScanner
 	public:
 		handle()
 			: _handle(nullptr)
-		{ }
+		{}
 
 		handle(std::nullptr_t null)
 			: _handle(null)
-		{ }
+		{}
 
 		handle(void* p)
 			: _handle(p)
-		{ }
+		{}
 
 		template <typename T>
 		handle(T* p)
 			: _handle(const_cast<typename std::remove_cv<T>::type*>(p))
-		{ }
+		{}
 
 		handle(const std::uintptr_t p)
 			: _handle(reinterpret_cast<void*>(p))
-		{ }
+		{}
 
 		handle(const handle& copy) = default;
 
@@ -190,14 +190,14 @@ namespace SignatureScanner
 #ifdef _MEMORYAPI_H_
 		bool protect(const std::size_t size, const std::uint32_t newProtect, const std::uint32_t* oldProtect)
 		{
-			return VirtualProtect(this->as<void*>(), size, static_cast<DWORD>(newProtect), reinterpret_cast<DWORD*>(&oldProtect)) == TRUE;
+			return VirtualProtect(this->as<void*>(), size, static_cast<DWORD>(newProtect), reinterpret_cast<DWORD*>(&oldProtect));
 		}
 
 		bool nop(const std::size_t size)
 		{
 			if (!this->as<void*>()) return false;
 
-			std::uint32_t oldProtect;
+			std::uint32_t oldProtect = 0;
 
 			if (this->protect(size, PAGE_EXECUTE_READWRITE, &oldProtect))
 			{
@@ -213,7 +213,7 @@ namespace SignatureScanner
 
 		bool set(const void* data, const std::size_t size)
 		{
-			std::uint32_t oldProtect;
+			std::uint32_t oldProtect = 0;
 
 			if (this->protect(size, PAGE_EXECUTE_READWRITE, &oldProtect))
 			{
@@ -247,7 +247,7 @@ namespace SignatureScanner
 		template <typename T>
 		bool write_vp(const T value)
 		{
-			std::uint32_t oldProtect;
+			std::uint32_t oldProtect = 0;
 
 			auto size = sizeof(value);
 
@@ -266,7 +266,7 @@ namespace SignatureScanner
 		template <typename... T>
 		bool write_args_vp(const T... args)
 		{
-			std::uint32_t oldProtect;
+			std::uint32_t oldProtect = 0;
 
 			auto size = std::valarray<std::size_t>({ sizeof(args)... }).sum();
 
@@ -288,19 +288,18 @@ namespace SignatureScanner
 	struct _pattern
 	{
 	protected:
-		using type = T;
 
 		struct nibble
 		{
-			type expected;
-			type mask;
+			T expected;
+			T mask;
 
 			nibble()
 				: mask()
 				, expected()
-			{ }
+			{}
 
-			bool matches(const type* value) const
+			bool matches(const T* value) const
 			{
 				return !((*value ^ expected) & mask);
 			}
@@ -311,7 +310,7 @@ namespace SignatureScanner
 		bool compare(const handle address) const
 		{
 			for (std::size_t i = 0; i < nibbles.size(); ++i)
-				if (!nibbles[i].matches(address.as<const type*>() + i))
+				if (!nibbles[i].matches(address.as<const T*>() + i))
 					return false;
 
 			return true;
@@ -342,7 +341,7 @@ namespace SignatureScanner
 
 			while (true)
 			{
-				nibble current_nibble;
+				nibble current_nibble{};
 				std::size_t i = 0;
 
 				while (const char c = *string++)
@@ -358,21 +357,21 @@ namespace SignatureScanner
 					else if (c != '?' && shift == 4)
 						continue;
 
-					if (++i == (sizeof(type) * 2))
+					if (++i == (sizeof(T) * 2))
 						break;
 				}
 
 				if (i > 0)
 					nibbles.push_back(current_nibble);
 
-				if (i < (sizeof(type) * 2))
+				if (i < (sizeof(T) * 2))
 					break;
 			}
 		}
 
 		handle scan(const handle base, const handle end) const
 		{
-			end.add(-static_cast<std::intptr_t>(nibbles.size() * sizeof(type)));
+			end.add(-static_cast<std::intptr_t>(nibbles.size() * sizeof(T)));
 
 			for (handle current = base; current < end; current = current.add(1))
 				if (compare(current))
@@ -418,7 +417,7 @@ namespace SignatureScanner
 		region(handle base, std::size_t size)
 			: _base(base)
 			, _size(size)
-		{ }
+		{}
 
 		handle base() const
 		{
@@ -496,7 +495,7 @@ namespace SignatureScanner
 	protected:
 		module(handle base)
 			: region(base, base.add(base.as<IMAGE_DOS_HEADER&>().e_lfanew).as<IMAGE_NT_HEADERS&>().OptionalHeader.SizeOfImage)
-		{ }
+		{}
 
 	public:
 		static module named(const char* name)
@@ -530,11 +529,11 @@ namespace SignatureScanner
 	public:
 		safe_class()
 			: _handle(nullptr)
-		{ }
+		{}
 
 		safe_class(C* const pClass)
 			: _handle(pClass)
-		{ }
+		{}
 
 		C* get() const
 		{
@@ -577,18 +576,18 @@ namespace SignatureScanner
 		static_function(Invocable* p)
 			: invoker_([](void* p) { return std::move(*static_cast<Invocable*>(p))(); })
 			, params_(p, [](void* p) { delete static_cast<Invocable*>(p); })
-		{ }
+		{}
 
 	public:
 		static_function()
 			: invoker_(nullptr)
 			, params_(nullptr, nullptr)
-		{ }
+		{}
 
 		template <typename Function, typename... Args>
 		static_function(Function f, Args... args)
 			: static_function(new auto([f, args...]{ return f(args...); }))
-		{ }
+		{}
 
 		Invoker get_invoker() const
 		{
@@ -642,7 +641,7 @@ namespace SignatureScanner
 		*reinterpret_cast<T*>(ML) = value;
 	}
 
-	inline SignatureScanner::handle operator""_Scan(const char* string, std::size_t)
+	inline SignatureScanner::handle operator""_scan(const char* string, std::size_t)
 	{
 		if (auto handle = SignatureScanner::module::named(nullptr).scan(string))
 			return handle;
@@ -656,11 +655,11 @@ namespace SignatureScanner
 		{
 			if (auto handle = SignatureScanner::module::named(nullptr).scan(pattern.c_str()))
 			{
-				LOG_MSG("Found %s", name);
+				LOG(MESSAGE) << "Found " << name;
 				return handle;
 			}
 
-			LOG_ERR("Failed to find %s", name);
+			LOG(ERROR) << "Failed to find " << name;
 			return nullptr;
 		}
 	}

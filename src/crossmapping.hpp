@@ -7,6 +7,7 @@ static std::vector<std::uint64_t> native_failed_vec;
 class CrossMapping
 {
 public:
+	static const crossmap_type crossmap;
 	static std::uint64_t map_native(std::uint64_t in_native);
 	static void dump_native_mapping_cache();
 	static bool search_map(crossmap_type map, std::uint64_t in_native, std::uint64_t* out_native);

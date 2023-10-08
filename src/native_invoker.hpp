@@ -10,14 +10,14 @@ protected:
 	alignas(uintptr_t) uint8_t m_vectorSpace[192];
 
 public:
-	template<typename T>
+	template <typename T>
 	inline T GetArgument(int idx)
 	{
 		intptr_t* arguments = reinterpret_cast<intptr_t*>(m_pArgs);
 		return *reinterpret_cast<T*>(&arguments[idx]);
 	}
 
-	template<typename T>
+	template <typename T>
 	inline void SetResult(int idx, T value)
 	{
 		intptr_t* returnValues = reinterpret_cast<intptr_t*>(m_pReturn);
@@ -29,7 +29,7 @@ public:
 		return m_nArgCount;
 	}
 
-	template<typename T>
+	template <typename T>
 	inline T GetResult(int idx)
 	{
 		intptr_t* returnValues = reinterpret_cast<intptr_t*>(m_pReturn);
@@ -99,7 +99,7 @@ public:
 
 struct pass
 {
-	template<typename ...T>
+	template <typename ...T>
 	pass(T...) {}
 };
 
@@ -109,7 +109,7 @@ public:
 
 	NativeManagerContext()
 		: NativeContext()
-	{ }
+	{}
 
 	void Reset()
 	{

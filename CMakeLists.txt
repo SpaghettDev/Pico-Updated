@@ -74,9 +74,11 @@ include(CMake/Utils.cmake)
 include(CMake/GlobalSettingsInclude.cmake OPTIONAL)
 
 ################################################################################
-# Add needed module(s)
+# Add needed modules
 ################################################################################
+include(CMake/minhook.cmake)
 include(CMake/gtav-classes.cmake)
+include(CMake/json.cmake)
 
 ################################################################################
 # Use solution folders feature

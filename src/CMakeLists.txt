@@ -147,35 +147,42 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 ################################################################################
 # Compile and link options
 ################################################################################
-if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Release>:
-            /std:c++latest;
-            /GL-;
-            /Ob2;
-            /Oi-;
-            /WX-
-        >
-        /Od;
-        /W3;
-        ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-        ${DEFAULT_CXX_EXCEPTION_HANDLING}
-    )
-    string(CONCAT FILE_CL_OPTIONS
-        "/Y-"
-    )
-    source_file_compile_options(Main.cpp ${FILE_CL_OPTIONS})
-    target_link_options(${PROJECT_NAME} PRIVATE
-        $<$<CONFIG:Debug>:
-            /DEBUG;
-            /INCREMENTAL
-        >
-        $<$<CONFIG:Release>:
-            /INCREMENTAL:NO
-        >
-        /SUBSYSTEM:WINDOWS
-    )
-endif()
+#if(MSVC)
+#    target_compile_options(${PROJECT_NAME} PRIVATE
+#        $<$<CONFIG:Release>:
+#            /std:c++latest;
+#            /GL-;
+#            /Ob2;
+#            /Oi-;
+#            /WX-
+#        >
+#        /Od;
+#        /W3;
+#        ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
+#        ${DEFAULT_CXX_EXCEPTION_HANDLING}
+#    )
+#    string(CONCAT FILE_CL_OPTIONS
+#        "/Y-"
+#    )
+#    source_file_compile_options(Main.cpp ${FILE_CL_OPTIONS})
+#    target_link_options(${PROJECT_NAME} PRIVATE
+#        $<$<CONFIG:Debug>:
+#            /DEBUG;
+#            /INCREMENTAL
+#        >
+#        $<$<CONFIG:Release>:
+#            /INCREMENTAL:NO
+#        >
+#        /SUBSYSTEM:WINDOWS
+#    )
+#endif()
+if (MSVC)
+  add_compile_options(/bigobj)
+  add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+else ()
+  add_compile_options(-Wa,-mbig-obj)
+endif ()
 
 ################################################################################
 # Dependencies

@@ -81,7 +81,7 @@ jobs:
           cat sha256.checksum
 
       - name: Remove previous Nightly
-        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        uses: dev-drprasad/delete-tag-and-release@8cd619d00037e4aeb781909c9a6b03940507d0da
         with:
           delete_release: true
           tag_name: nightly
